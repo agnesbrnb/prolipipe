@@ -66,8 +66,8 @@ def main():
         for name in files : 
             print (path_to_all_data)
             print(name)
-            #os.system("prokka "+path_to_all_data+name+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
-            os.system("prokka "+path_to_all_data+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
+            os.system("prokka "+path_to_all_data+name+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
+            #os.system("prokka "+path_to_all_data+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
             os.system("mv -fv PROKKA_"+name+" "+name)
             os.system("mv -fv "+name+"/*.gbf "+name+"/"+name+".gbk")#transform .gbf to .gbk
             os.system("rm -v "+name+"/"+name+".ecn "+name+"/"+name+".err "+name+"/"+name+".ffn "+name+"/"+name+".fixed* "+name+"/"+name+".fsa "+name+"/"+name+".gff "+name+"/"+name+".log "+name+"/"+name+".sqn "+name+"/"+name+".tbl "+name+"/"+name+".val")
