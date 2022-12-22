@@ -59,7 +59,7 @@ Before using the option -t, please make sure you have completed the all_taxons.t
 ###### Create the id_taxon.tsv file for mpwt :  
 `pipeline_yael.py -t --file /toy_example/genomes/ `
 
-###### Launching mpwt :  
+###### Launch mpwt :  
 `pipeline_yael.py -m --output [name for output file] --ptsc [Path to the scratch folder] --ptsi [Name of the sigularity image] --padmet_ref [path to padmet ref]`
 
 
