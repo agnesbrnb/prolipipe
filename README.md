@@ -71,6 +71,6 @@ Before launching the script, make sure you have created a .txt file which contai
 optional argument that creates a graph :
 
 	-g		path and name of the output .png graph
-
+	
 ##### Example
 `pathways.py -r /toy_example/reactions.tsv -p /toy_example/pathway_pyruvate.txt -o result_pyruvate.csv`
