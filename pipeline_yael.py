@@ -67,7 +67,6 @@ def main():
             print (path_to_all_data)
             print(name)
             os.system("prokka "+path_to_all_data+name+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
-            #os.system("prokka "+path_to_all_data+"/* --outdir PROKKA_"+name+" --prefix "+name+" --compliant --force")
             os.system("mv -fv PROKKA_"+name+" "+name)
             os.system("mv -fv "+name+"/*.gbf "+name+"/"+name+".gbk")#transform .gbf to .gbk
             os.system("rm -v "+name+"/"+name+".ecn "+name+"/"+name+".err "+name+"/"+name+".ffn "+name+"/"+name+".fixed* "+name+"/"+name+".fsa "+name+"/"+name+".gff "+name+"/"+name+".log "+name+"/"+name+".sqn "+name+"/"+name+".tbl "+name+"/"+name+".val")
@@ -79,59 +78,28 @@ def main():
             #CREATE START OF TAXON ID FILE
         #-------------------------------------------------------
         fo = open("taxon_id.tsv","w")
-        #fo2 = open('tax_not_found.txt','w')
         fr = open("/home/ytirlet/Documents/yael/taxons/all_taxons.tsv")
         lines = [line for line in fr]
         fo.write("species\ttaxon_id\telement_type\tcorresponding_file\n")
         for name in files :
-            #compteur = 0
             for line in lines :
-                #compteur += 1
                 if name in line :
                     fo.write(line)
-                    #compteur += 1
-            # if compteur == 0 :
-            #     fo2.write(name + '\n')
-                
-        #print("PLEASE FILL THE 'taxon_id.tsv' FILE WITH ALL TAXON ID NUMBER")
-        #wait=input("PRESS CONTINUE WHEN THE JOB IS DONE")
     
     if options.mpwt == True :
         path_to_pgdb=output_path
         #-------------------------------------------------------
             #RUNNING MPWT USING THE SINGULARITY 'm2m_23_5.sif' TO CREATE .dat FILES 
         #-------------------------------------------------------
-        # print("singularity exec -B "+path_to_scratch+" "+path_to_singularity+"  mpwt -f . -o "+output_path+" --taxon-file --patho --dat --md -v --ignore-error")
-        os.system("singularity exec -B "+path_to_scratch+" "+path_to_singularity+"  mpwt -f . -o "+output_path+" --taxon-file --patho --dat --md -v --ignore-error")
-        #wait=input("PRESS CONTINUE WHEN THE JOB IS DONE")
+        os.system("singularity exec -B "+path_to_scratch+":"+path_to_scratch+" "+path_to_scratch+path_to_singularity+" mpwt -f /scratch/ytirlet/prokka_pub4/ -o "+output_path+" --patho --flat --md -v")
+        
         #-------------------------------------------------------
             #Convert .dat TO CREATE .padmet FILES
         #-------------------------------------------------------
         path_to_padmet_ref= options.path_to_padmet_ref
         files = os.listdir(path_to_pgdb)
         for name in files :
-                os.system("~/.local/bin/padmet pgdb_to_padmet --pgdb="+path_to_pgdb+name+"/ --output="+name+".padmet"+" --extract-gene --no-orphan --padmetRef="+path_to_padmet_ref+" -v")
-        #-------------------------------------------------------
-            #Use .padmet to create .sbml
-        #-------------------------------------------------------
-        if os.path.isdir("sbml_files/")== False :
-            os.system("mkdir sbml_files")        
-        if os.path.isdir("padmet_files/")== False :
-            os.system("mkdir padmet_files")
-        files = os.listdir("padmet_files/")
-        for name in files :
-            os.system("~/.local/bin/padmet sbmlGenerator --padmet=padmet_files/"+name+" --output="+name+".sbml --sbml_lvl=2 -v")
-            os.system("mv -vf *.sbml sbml_files/")
-        
-        #-------------------------------------------------------
-            #Use .padmet to create wikipages 
-        #-------------------------------------------------------
-        
-
-        #print("TEST TEST")
-        
-        #os.system("mv *.padmet padmet_files/")
-        #os.system("~/.local/bin/padmet wikiGenerator --padmet=padmet_files/ --output=wikipages --padmetRef="+path_to_padmet_ref+" --wiki_id="+options.id_wiki+" -v")
+                os.system("singularity "+path_to_scratch+path_to_singularity+"padmet pgdb_to_padmet --pgdb="+path_to_pgdb+name+"/ --output="+name+".padmet"+" --extract-gene --no-orphan --padmetRef="+path_to_padmet_ref+" -v")
         
 
 if __name__ == "__main__":
