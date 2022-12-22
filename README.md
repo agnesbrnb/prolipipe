@@ -51,15 +51,15 @@ options:
 
 Before using the option -t, please make sure you have completed the all_taxons.tsv file with the information of your own genomes.
 
-###### Examples
+##### Examples
 
-Launch prokka :  
+###### Launch prokka :  
 `pipeline_yael.py -p --file /toy_example/genomes/ `
 
-Create the id_taxon.tsv file for mpwt :  
+###### Create the id_taxon.tsv file for mpwt :  
 `pipeline_yael.py -t --file /toy_example/genomes/ `
 
-Launching mpwt :  
+###### Launching mpwt :  
 `pipeline_yael.py -m --output [name for output file] --ptsc [Path to the scratch folder] --ptsi [Name of the sigularity image] --padmet_ref [path to padmet ref]`
 
 
