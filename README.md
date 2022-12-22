@@ -53,11 +53,19 @@ Before using the option -t, please make sure you have completed the all_taxons.t
 
 ###### Examples
 
-**INSERT EXAMPLES HERE**
+Launch prokka :  
+`pipeline_yael.py -p --file /toy_example/genomes/ `
+
+Create the id_taxon.tsv file for mpwt :  
+`pipeline_yael.py -t --file /toy_example/genomes/ `
+
+Launching mpwt :  
+`pipeline_yael.py -m --output [name for output file] --ptsc [Path to the scratch folder] --ptsi [Name of the sigularity image] --padmet_ref [path to padmet ref]`
+
 
 #### pathways.py
 
-Before launching the script, make sure you have created a .txt file which contains a list of metacyc reaction corresponding to a pathway, as in the *example file*
+Before launching the script, make sure you have created a .txt file which contains a list of metacyc reaction corresponding to a pathway, as in the pathway_pyruvate.txt file.
 
 `pathways.py -r [path and name of reaction file] -p [path and name of pathway file : reaction list] -o [path and name for the output .csv file]`
 
