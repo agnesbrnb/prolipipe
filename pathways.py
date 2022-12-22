@@ -64,7 +64,7 @@ if len(column_names) < 1 :
     fo.close
     exit()
 
-# writing the tab in a csv tab
+# writing the tab in a csv file
 fo = open(output_file,"w")
 fo.write(row_names[0] + '\t')
 
@@ -90,6 +90,7 @@ for i in range(1,len(row_names)) :
 
 fo.close()
 
+##### TO IMPROVE : #######
 
 # CREATION OF THE GRAPH
 if args.g :
