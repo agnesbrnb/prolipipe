@@ -1,5 +1,7 @@
 # Prolific
 
+*A terme : relier les 3 scripts en 1 seul*
+
 ## Description
 
 The prolific pipeline is about genome annotation and metabolic pathway reconstruction. From .fasta genomes, it enables to find if strains of bacteria are theorically able to produce metabolites.
@@ -21,9 +23,6 @@ To install and use pathway tools and mpwt with singularity, you can follow the t
 
 To begin, you can download genomes using [ncbi genome download](https://github.com/kblin/ncbi-genome-download) or use your own ones.  
 The genomes must be ordonned like the genome folder in toy_example.  
-
-  
-
 
 #### rename.py
 
