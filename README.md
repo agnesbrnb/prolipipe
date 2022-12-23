@@ -40,6 +40,7 @@ options:
 	--output	Path to the folder where you want to put the results in
 	--ptsc		Path to the scratch folder (on the cluster)
 	--ptsi		Name of the sigularity image
+	--tax		Path of the all_taxon file
 	-e 		Launch extract module to decompress all .tar and prepare data for prokka module
 	-t		Module to help you construct the taxon_id file that is need for Pathwaytools
 	-p		Launch the prokka module that will create all .gbk with the .fasta for each folder organism
@@ -56,7 +57,7 @@ Before using the option -t, please make sure you have completed the all_taxons.t
 `pipeline_yael.py -p --file /toy_example/genomes/ `
 
 ###### Create the id_taxon.tsv file for mpwt :  
-`pipeline_yael.py -t --file /toy_example/genomes/ `
+`pipeline_yael.py -t --file /toy_example/genomes/ --tax /toy_example/all_taxons.tsv`
 
 ###### Launch mpwt :  
 `pipeline_yael.py -m --output [name for output file] --ptsc [Path to the scratch folder] --ptsi [Name of the sigularity image] --padmet_ref [path to padmet ref]`
