@@ -98,7 +98,7 @@ def main():
         path_to_padmet_ref= options.path_to_padmet_ref
         files = os.listdir(path_to_pgdb)
         for name in files :
-                os.system("singularity "+path_to_scratch+path_to_singularity+"padmet pgdb_to_padmet --pgdb="+path_to_pgdb+name+"/ --output="+name+".padmet"+" --extract-gene --no-orphan --padmetRef="+path_to_padmet_ref+" -v")
+                os.system("singularity run "+path_to_scratch+path_to_singularity+"padmet pgdb_to_padmet --pgdb="+path_to_pgdb+name+"/ --output="+name+".padmet"+" --extract-gene --no-orphan --padmetRef="+path_to_padmet_ref+" -v")
         
 
 if __name__ == "__main__":
