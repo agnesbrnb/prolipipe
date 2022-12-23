@@ -29,6 +29,7 @@ def main():
     parser.add_option("-o","--output", dest="output", help="Path to the folder where you want to put the results in.")
     parser.add_option("-p", "--prokka", action="store_true", dest="prokka", help="Launch the prokka module that will create all .gbk with the .fasta for each folder organism.")
     parser.add_option("-q","--quiet", action="store_false", dest="verbose", default=True)
+    parser.add_option("--tax", dest="all_taxon",help="path of the all_taxon.tsv file")
     parser.add_option("--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
     (options,args) = parser.parse_args()
     
@@ -37,6 +38,7 @@ def main():
     path_to_scratch = options.ptsc
     path_to_singularity = options.ptsi
     output_path = options.output
+    all_tax = options.all_taxon
     if len(args) >=1:
         parser.error("Incorrect number of arguments")
     if options.extract == True :
@@ -76,8 +78,9 @@ def main():
         #-------------------------------------------------------
             #CREATE START OF TAXON ID FILE
         #-------------------------------------------------------
-        fo = open("taxon_id.tsv","w")
-        fr = open("/home/ytirlet/Documents/yael/taxons/all_taxons.tsv")
+        tax_file = path_to_all_data+"taxon_id.tsv"
+        fo = open(tax_file,"w")
+        fr = open(all_taxon)
         lines = [line for line in fr]
         fo.write("species\ttaxon_id\telement_type\tcorresponding_file\n")
         for name in files :
