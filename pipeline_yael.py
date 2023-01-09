@@ -3,7 +3,7 @@
 """
 Created on Wed Nov  4 11:46:33 2020
 
-@author: craphale
+@author: craphale & ytirlet
 """
 
 #!/usr/bin/env python
@@ -48,15 +48,12 @@ def main():
         for name in files :
             if os.path.isfile(path_to_all_data+name+'/genome_assemblies.tar'):
                 os.system('tar xvf '+path_to_all_data+name+'/genome_assemblies.tar -C '+path_to_all_data+name)
-                #print('tar xvf '+path_to_all_data+name+'/genome_assemblies.tar -C '+path_to_all_data+name)
                 os.system('gunzip '+path_to_all_data+name+'/ncbi*/GC*')
-                #print('gunzip '+path_to_all_data+name+'/ncbi*/GC*')
                 os.system('mv '+path_to_all_data+name+'/ncbi*/*.fna '+path_to_all_data+name+'/')
         
             #-------------------------------------------------------
                 #CLEAN
             #-------------------------------------------------------
-        
                 os.system('rm -rf '+path_to_all_data+name+'/ncbi*')
                 os.system('rm -rf '+path_to_all_data+name+'/repo*')
     
@@ -76,7 +73,7 @@ def main():
     
     if options.taxon_id == True :
         #-------------------------------------------------------
-            #CREATE START OF TAXON ID FILE
+            #CREATE TAXON ID FILE
         #-------------------------------------------------------
         tax_file = path_to_all_data+"taxon_id.tsv"
         fo = open(tax_file,"w")
