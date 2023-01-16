@@ -19,18 +19,18 @@ import csv
 
 def main() :
     parser = OptionParser()
-    parser.add_option("-i", "--input", dest="input",help="Path to the folder where the genomes are/will be uploaded")
+    parser.add_option("-i", "--input", dest="input",help="Path to the folder where the genomes are")
     parser.add_option("-o", "--output", dest="output",help="Path to the folder where you want to put the results in")
     parser.add_option("--tax", dest="all_taxon",help="path of the all_taxon.tsv file")
     parser.add_option("--padmet_ref", dest="path_to_padmet_ref", help="Path to the padmet_ref need for the module mpwt.")
     parser.add_option("--ptsc",dest="ptsc", help="Path to scratch folder (genouest cluster).")
-    parser.add_option("--ptsi",dest="ptsi", help="Path to the singularity.")
+    parser.add_option("--ptsi",dest="ptsi", help="Name of the singularity image.")
     parser.add_option("--pwy",dest="pwy_fold", help="Path to the folder with the pathways.txt files for all wanted metabolites.")
     parser.add_option("-e","--extract", action="store_true", dest="extract", help="Launch the extraction of the .tar genome folders")
     parser.add_option("-r","--rename", action="store_true", dest="rename", help="Rename practically all the genomes")
     parser.add_option("-a","--all", action="store_true", dest="all", help="Launch all the pipeline.")
     parser.add_option("-v","--verbose",action="store_true",dest="verbose", help="Activate verbose.")
-    parser.add_option("--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
+    parser.add_option("-k","--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
     (options,args) = parser.parse_args()
     
     path_to_all_data = options.input
