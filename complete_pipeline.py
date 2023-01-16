@@ -89,7 +89,7 @@ def main() :
             # rename folders and .fasta or .fna genome files
             os.system("mv -fv " + path_to_all_data + name + "/*.fna " + path_to_all_data + name + "/" + new_name + ".fna")
             os.system("mv -fv " + path_to_all_data + name + "/*.fasta " + path_to_all_data + name + "/" + new_name + ".fasta")
-            os.system("mv -fv " + path_to_all_data + name + "/" + path_to_all_data + new_name + "/")
+            os.system("mv -fv " + path_to_all_data + name + "/ " + path_to_all_data + new_name + "/")
 
     #-------------------------------------------------------
         # USING PROKKA FOR ANNOTATION
