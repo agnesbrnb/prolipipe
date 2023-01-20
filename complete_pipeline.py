@@ -38,7 +38,6 @@ def main() :
     path_to_singularity = options.ptsi
     output_path = options.output
     all_taxon = options.all_taxon
-    strain_file = options.strain
  
     if len(args) >=1:
         parser.error("Incorrect number of arguments")
@@ -171,8 +170,10 @@ def main() :
     #-------------------------------------------------------
 
     if options.asko == True :
-
-        # compter le nombre de metabolites dont la completion est supérieure à 80% pour chaque souche
+        
+        strain_file = options.strain
+        
+        # count number of metabolite which completion is over 80% for every strain
         dico_metabo = {}
         metabo_files = os.listdir(output_path + 'result_metabo/')
         for name in metabo_files :
@@ -189,7 +190,7 @@ def main() :
             fr.close()
 
 
-        # Ecriture des tableaux Souche, Espece et Genre
+        # Writing the tables Souche, Espece and Genre
         fr1 = open(strain_file)
         os.system('mkdir ' + output_path + 'asko_files')
         fw1 = open(output_path + 'asko_files/' + 'souche.tsv','w')
@@ -227,8 +228,8 @@ def main() :
         fw2.close()
         fw3.close()
 
-        # Modification des tableaux de résultats
-        # Calcul des pourcentages d'occurences des voies métabolites complètes à 100% ou à plus de 80 %
+        # Modification of the result files
+        # Calculation of the percent of the occurrence of metabolic pathway that are 100% or >80% complete
         pwy_dict100 = {}
         pwy_dict80 = {}
         list_metabo = []
