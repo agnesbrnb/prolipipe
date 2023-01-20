@@ -26,8 +26,6 @@ def main() :
     parser.add_option("--ptsc",dest="ptsc", help="Path to scratch folder (genouest cluster).")
     parser.add_option("--ptsi",dest="ptsi", help="Name of the singularity image.")
     parser.add_option("--pwy",dest="pwy_fold", help="Path to the folder with the pathways.txt files for all wanted metabolites.")
-    parser.add_option("-e","--extract", action="store_true", dest="extract", help="Launch the extraction of the .tar genome folders")
-    parser.add_option("-r","--rename", action="store_true", dest="rename", help="Rename practically all the genomes")
     parser.add_option("-a","--all", action="store_true", dest="all", help="Launch all the pipeline.")
     parser.add_option("-v","--verbose",action="store_true",dest="verbose", help="Activate verbose.")
     parser.add_option("-k","--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
@@ -42,54 +40,6 @@ def main() :
  
     if len(args) >=1:
         parser.error("Incorrect number of arguments")
-
-    #-------------------------------------------------------
-        # EXTRACT GENOME .fna
-    #-------------------------------------------------------
-    if options.extract or options.all :
-        for name in files :
-            if os.path.isfile(path_to_all_data+name+'/genome_assemblies.tar'):
-                os.system('tar xvf '+path_to_all_data+name+'/genome_assemblies.tar -C '+path_to_all_data+name)
-                os.system('gunzip '+path_to_all_data+name+'/ncbi*/GC*')
-                os.system('mv '+path_to_all_data+name+'/ncbi*/*.fna '+path_to_all_data+name+'/')
-                # CLEAN
-                os.system('rm -rf '+path_to_all_data+name+'/ncbi*')
-                os.system('rm -rf '+path_to_all_data+name+'/repo*')
-
-    #-------------------------------------------------------
-        # RENAME
-    #-------------------------------------------------------
-    if options.rename or options.all :
-        dico_prefix = {'Bifidobacterium':'B','Lactobacillus':'Lb', 'L':'Lco', 'Lactococcus':'Lco',  'Leuconostoc':'Leu', 'Pediococcus':'Pe', 'Propionibacterium':'Pr', 'P':'Pr', 'Streptococcus':'St'}
-        dico_suffix = {'Complete':'C', 'complet':'C', 'C':'C', 'Scaffold':'S', 'S':'S', 'Plasmid':'P', 'plasmide':'P', 'P':'P'}
-        files_list = os.listdir(path_to_all_data)
-        for name in files_list :
-            parts = name.split('_')
-            prefix = parts[0]
-            middle = parts[1:-1]
-            suffix = parts[-1]
-            # prefix
-            if prefix in dico_prefix :
-                new_name = dico_prefix[prefix] + '_'
-            else :
-                new_name = prefix + '_'
-            for i in range(len(middle)) :
-                new_name += middle[i] + '_'
-            # suffix
-            if suffix in dico_suffix :
-                new_name += dico_suffix[suffix]
-            else :
-                new_name += suffix + '_S'
-            # remove forbidden symbols 
-            if '.' in new_name or ':' in new_name or '/' in new_name :
-                while '.' in new_name or ':' in new_name or '/' in new_name :
-                    new_name = new_name.replace('.','-')
-                    new_name = new_name.replace(':','-')
-                    new_name = new_name.replace('/','-')
-            # rename folders and .fasta or .fna genome files
-            os.system("mv -fv " + path_to_all_data + name + "/*.fna " + path_to_all_data + name + "/" + new_name + ".fna")
-            os.system("mv -fv " + path_to_all_data + name + "/*.fasta " + path_to_all_data + name + "/" + new_name + ".fasta")
-            os.system("mv -fv " + path_to_all_data + name + "/ " + path_to_all_data + new_name + "/")
 
     #-------------------------------------------------------
         # USING PROKKA FOR ANNOTATION
@@ -216,6 +166,7 @@ def main() :
                 fo.write(str(react_count) + '\t' + str(reaction_nb) + '\t' + str(percent) + '%\n')
 
             fo.close()
+
 
 
 if __name__ == "__main__":
