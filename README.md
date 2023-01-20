@@ -43,7 +43,8 @@ mandatory arguments :
 
 options :
 
-	-a		Launch all the pipeline
+	-a		Launch the creation of the askomics files
+	--strain	Path to the strain file (name of strain and status), mandatory with option -a
 	-k		Keep .faa files that can be need to use other annotation software like eggNOG-mapper
 	-v		Activate verbose  
 
