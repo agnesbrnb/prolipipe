@@ -40,10 +40,11 @@ for name in list :
     else :
         new_name += suffix + '_S'
     # remove forbidden symbols 
-    if '.' in new_name or ':' in new_name :
-        while '.' in new_name or ':' in new_name :
+    if '.' in new_name or ':' in new_name or '/' in new_name :
+        while '.' in new_name or ':' in new_name or '/' in new_name :
             new_name = new_name.replace('.','-')
             new_name = new_name.replace(':','-')
+            new_name = new_name.replace('/','-')
     # rename folders and .fasta or .fna genome files
     os.system("mv -fv " + directory + name + "/*.fna " + directory + name + "/" + new_name + ".fna")
     os.system("mv -fv " + directory + name + "/*.fasta " + directory + name + "/" + new_name + ".fasta")
