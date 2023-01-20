@@ -21,7 +21,11 @@ To install and use pathway tools and mpwt with singularity, you can follow the t
 
 To begin, you can download genomes using [ncbi genome download](https://github.com/kblin/ncbi-genome-download) or use your own ones.  
 The genomes must be ordonned like the genome folder in toy_example.  
+Then please rename your genomes with the rename.py script and complete the all_taxons.tsv file with the informations of the renamed genomes.
 
+#### rename.py
+
+`rename.py -d [path to the directory of the folders to be renamed]`
 
 #### complete_pipeline.py
 
@@ -39,15 +43,11 @@ mandatory arguments :
 
 options :
 
-	-e 		Launch extract module to decompress all .tar and prepare data for prokka module
-	-r		Rename all the genomes
 	-a		Launch all the pipeline
 	-k		Keep .faa files that can be need to use other annotation software like eggNOG-mapper
 	-v		Activate verbose  
 
-Before launching the pipeline, please make sure you have completed the all_taxons.tsv file with the information of your own genomes and that you have created (at leat) one .txt file which contains a list of metacyc reaction corresponding to a pathway, as in the pathway_pyruvate.txt file.
+Before launching the pipeline, please make sure you have completed the all_taxons.tsv file with the information of your own genomes and that you have created (at least) one .txt file which contains a list of metacyc reaction corresponding to a pathway, as in the pathway_pyruvate.txt file.
 
 If you don't want to rename your genomes, please make sure there is not any of these symbols in the names : '.', ':', '/' and that the names matches the ones in all_taxons.tsv.
-
-The extract section will be useful if you had downloaded your genomes with ncbi_genome_download.
 
