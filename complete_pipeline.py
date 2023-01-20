@@ -170,91 +170,93 @@ def main() :
         # CREATION OF ASKOMICS FILES
     #-------------------------------------------------------
 
-    # compter le nombre de metabolites dont la completion est supérieure à 80% pour chaque souche
-    dico_metabo = {}
-    metabo_files = os.listdir(output_path + 'result_metabo/')
-    for name in metabo_files :
-        fr = open(output_path + 'result_metabo/' + name)
-        for line in fr :
-            line = line[:-1].split('\t')
-            if line[0] != 'reaction' :
+    if options.asko == True :
+
+        # compter le nombre de metabolites dont la completion est supérieure à 80% pour chaque souche
+        dico_metabo = {}
+        metabo_files = os.listdir(output_path + 'result_metabo/')
+        for name in metabo_files :
+            fr = open(output_path + 'result_metabo/' + name)
+            for line in fr :
+                line = line[:-1].split('\t')
+                if line[0] != 'reaction' :
+                    souche = line[0]
+                    if souche not in dico_metabo :
+                        dico_metabo[souche] = 0
+                    percent = line [-1][:-1]
+                    if float(percent) > 80 :
+                        dico_metabo[souche] += 1
+            fr.close()
+
+
+        # Ecriture des tableaux Souche, Espece et Genre
+        fr1 = open(strain_file)
+        os.system('mkdir ' + output_path + 'asko_files')
+        fw1 = open(output_path + 'asko_files/' + 'souche.tsv','w')
+        fw2 = open(output_path + 'asko_files/' + 'espece.tsv','w')
+        fw3 = open(output_path + 'asko_files/' + 'genre.tsv','w')
+
+        fw1.write('Souche\tNom\tassocie@Espece\tStatut\tNombre voies completes a > 80%\n')
+        fw2.write('Espece\tNom\tassocie@Genre\n')
+        fw3.write('Genre\tNom\n')
+
+        dico_genre = {'B':'Bifidobacterium','Lb':'Lactobacillus','Lco':'Lactococcus','Leu':'Leuconostoc','Pe':'Pediococus','Pr':'Propionobacterium','St':'Streptococcus'}
+
+        for line in fr1 :
+            line = line.split(',')
+            if line[0] != 'souche' :
                 souche = line[0]
-                if souche not in dico_metabo :
-                    dico_metabo[souche] = 0
-                percent = line [-1][:-1]
-                if float(percent) > 80 :
-                    dico_metabo[souche] += 1
-        fr.close()
+                statut = line[1][:-1]
+                espece = souche.split("_")[1]
+                genre = souche.split("_")[0]
+                if genre == 'St' :
+                    espece = 'thermophilus'
+                # Distinction des deux espèces 'lactis'
+                if espece == 'lactis' and genre == 'Lco' :
+                    espece = espece + "_lco"
+                elif espece == 'lactis' and genre == 'Leu' :
+                    espece = espece + '_leu'
+                genre = dico_genre[genre]
 
+                fw1.write(souche + '\t' + souche + '\t' + espece + '\t' + statut + '\t' + str(dico_metabo[souche]) + '\n')
+                fw2.write(espece + '\t' + espece + '\t' + genre + '\n')
+                fw3.write(genre + '\t' + genre + '\n')
 
-    # Ecriture des tableaux Souche, Espece et Genre
-    fr1 = open(strain_file)
-    os.system('mkdir ' + output_path + 'asko_files')
-    fw1 = open(output_path + 'asko_files/' + 'souche.tsv','w')
-    fw2 = open(output_path + 'asko_files/' + 'espece.tsv','w')
-    fw3 = open(output_path + 'asko_files/' + 'genre.tsv','w')
+        fr1.close()
+        fw1.close()
+        fw2.close()
+        fw3.close()
 
-    fw1.write('Souche\tNom\tassocie@Espece\tStatut\tNombre voies completes a > 80%\n')
-    fw2.write('Espece\tNom\tassocie@Genre\n')
-    fw3.write('Genre\tNom\n')
+        # Modification des tableaux de résultats
+        # Calcul des pourcentages d'occurences des voies métabolites complètes à 100% ou à plus de 80 %
+        pwy_dict100 = {}
+        pwy_dict80 = {}
+        list_metabo = []
+        for name in metabo_files :
+            df = pd.read_csv(output_path + 'result_metabo/' + name ,sep = '\t')
+            p,n = df.shape
+            df.insert(0,'ID',['result' + str(i) for i in range(p)])
+            df.insert(1,'associe@Metabolite',[name[:-4] for i in range(p)])
 
-    dico_genre = {'B':'Bifidobacterium','Lb':'Lactobacillus','Lco':'Lactococcus','Leu':'Leuconostoc','Pe':'Pediococus','Pr':'Propionobacterium','St':'Streptococcus'}
+            df.to_csv(output_path + 'asko_files/' + 'result_' + name,sep = '\t', index = False)
 
-    for line in fr1 :
-        line = line.split(',')
-        if line[0] != 'souche' :
-            souche = line[0]
-            statut = line[1][:-1]
-            espece = souche.split("_")[1]
-            genre = souche.split("_")[0]
-            if genre == 'St' :
-                espece = 'thermophilus'
-            # Distinction des deux espèces 'lactis'
-            if espece == 'lactis' and genre == 'Lco' :
-                espece = espece + "_lco"
-            elif espece == 'lactis' and genre == 'Leu' :
-                espece = espece + '_leu'
-            genre = dico_genre[genre]
-
-            fw1.write(souche + '\t' + souche + '\t' + espece + '\t' + statut + '\t' + str(dico_metabo[souche]) + '\n')
-            fw2.write(espece + '\t' + espece + '\t' + genre + '\n')
-            fw3.write(genre + '\t' + genre + '\n')
-
-    fr1.close()
-    fw1.close()
-    fw2.close()
-    fw3.close()
-
-    # Modification des tableaux de résultats
-    # Calcul des pourcentages d'occurences des voies métabolites complètes à 100% ou à plus de 80 %
-    pwy_dict100 = {}
-    pwy_dict80 = {}
-    list_metabo = []
-    for name in metabo_files :
-        df = pd.read_csv(output_path + 'result_metabo/' + name ,sep = '\t')
-        p,n = df.shape
-        df.insert(0,'ID',['result' + str(i) for i in range(p)])
-        df.insert(1,'associe@Metabolite',[name[:-4] for i in range(p)])
-
-        df.to_csv(output_path + 'asko_files/' + 'result_' + name,sep = '\t', index = False)
-
-        df_percent = df['Completion percent'].values
-        df_percent = list(df_percent)
-        pwy_dict100[name] = 0
-        pwy_dict80[name] = 0
-        for i in df_percent[1:] :
-            percent = float(i[:-1])
-            if percent > 80 :
-                pwy_dict80[name] += 1
-                if percent == 100 :
-                    pwy_dict100[name] += 1
-        list_metabo.append(name)
-        
-    fm = open(output_path + 'asko_files/' + 'Metabolite.tsv','w')
-    fm.write('Metabolite\tNom\tOccurrence >80%\tOccurrence 100%\n')
-    for name in list_metabo :
-        fm.write(name[:-4] + '\t' + name[:-4] + '\t' + str(round(pwy_dict80[name]*100/len(df_percent),2)) + '\t' + str(round(pwy_dict100[name]*100/len(df_percent),2)) + '\n')
-    fm.close()
+            df_percent = df['Completion percent'].values
+            df_percent = list(df_percent)
+            pwy_dict100[name] = 0
+            pwy_dict80[name] = 0
+            for i in df_percent[1:] :
+                percent = float(i[:-1])
+                if percent > 80 :
+                    pwy_dict80[name] += 1
+                    if percent == 100 :
+                        pwy_dict100[name] += 1
+            list_metabo.append(name)
+            
+        fm = open(output_path + 'asko_files/' + 'Metabolite.tsv','w')
+        fm.write('Metabolite\tNom\tOccurrence >80%\tOccurrence 100%\n')
+        for name in list_metabo :
+            fm.write(name[:-4] + '\t' + name[:-4] + '\t' + str(round(pwy_dict80[name]*100/len(df_percent),2)) + '\t' + str(round(pwy_dict100[name]*100/len(df_percent),2)) + '\n')
+        fm.close()
 
 
 if __name__ == "__main__":
