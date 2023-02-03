@@ -38,6 +38,7 @@ def main() :
     path_to_singularity = options.ptsi
     output_path = options.output
     all_taxon = options.all_taxon
+    strain_file = options.strain
  
     if len(args) >=1:
         parser.error("Incorrect number of arguments")
@@ -48,7 +49,7 @@ def main() :
     #-------------------------------------------------------
     for name in files : 
         os.system('mkdir ' + output_path + 'prokka')
-        os.system("prokka "+path_to_all_data+name+"/* --outdir "+ output_path + 'prokka/' +name+" --prefix "+name+" --compliant --force")
+        os.system("prokka "+path_to_all_data+name+"/* --outdir "+ output_path + 'prokka/' +name+" --prefix "+name+" --compliant --force --cpus 40")
         os.system("mv -fv " + output_path + 'prokka/' +name+"/*.gbf " + output_path + 'prokka/' +name+"/"+name+".gbk") #transform .gbf to .gbk
         os.system("rm -v " + output_path + 'prokka/' +name+"/"+name+".ecn " + output_path + 'prokka/' +name+"/"+name+".err " + output_path + 'prokka/'+name+"/"+name+".ffn " + output_path + 'prokka/' +name+"/"+name+".fixed* " + output_path + 'prokka/' +name+"/"+name+".fsa " + output_path + 'prokka/' +name+"/"+name+".gff " + output_path + 'prokka/' +name+"/"+name+".log " + output_path + 'prokka/' +name+"/"+name+".sqn " + output_path + 'prokka/' +name+"/"+name+".tbl " + output_path + 'prokka/' +name+"/"+name+".val")
         if options.keep_faa == False :
@@ -77,7 +78,7 @@ def main() :
         # RUNNING MPWT USING SINGULARITY TO CREATE .dat FILES 
     #-------------------------------------------------------
     os.system('mkdir ' + output_path + 'mpwt')
-    os.system("singularity exec -B "+path_to_scratch+":"+path_to_scratch+" "+path_to_scratch+path_to_singularity+" mpwt -f " + output_path + "prokka/ -o " +output_path+ "mpwt/ --patho --flat --clean --md -v")
+    os.system("singularity exec -B "+path_to_scratch+":"+path_to_scratch+" "+path_to_scratch+path_to_singularity+" mpwt -f " + output_path + "prokka/ -o " +output_path+ "mpwt/ --cpu 40 --patho --flat --clean --md -v")
     
     #-------------------------------------------------------
         # CONVERT .dat INTO .padmet FILES
@@ -95,7 +96,7 @@ def main() :
     os.system('padmet compare_padmet --padmet=' + output_path + 'padmet/ --output=' + output_path + 'tsv_files/ -v')
 
     #-------------------------------------------------------
-        # ANALYSE THE METABOLIC PATHWAYS
+        # ANALYSE OF THE METABOLIC PATHWAYS
     #-------------------------------------------------------
     os.system('mkdir ' + output_path + 'result_metabo')
     reactions = output_path + 'tsv_files/reactions.tsv'
@@ -161,7 +162,7 @@ def main() :
                     fo.write('0\t')
                 # adding percentage of completion
                 percent = round ((react_count / reaction_nb) * 100, 2)
-                fo.write(str(react_count) + '\t' + str(reaction_nb) + '\t' + str(percent) + '%\n')
+                fo.write(str(react_count) + '\t' + str(reaction_nb) + '\t' + str(percent) + '\n')
 
             fo.close()
 
@@ -170,10 +171,8 @@ def main() :
     #-------------------------------------------------------
 
     if options.asko == True :
-        
-        strain_file = options.strain
-        
-        # count number of metabolite which completion is over 80% for every strain
+
+        # compter le nombre de metabolites dont la completion est supérieure à 80% pour chaque souche
         dico_metabo = {}
         metabo_files = os.listdir(output_path + 'result_metabo/')
         for name in metabo_files :
@@ -190,7 +189,7 @@ def main() :
             fr.close()
 
 
-        # Writing the tables Souche, Espece and Genre
+        # Ecriture des tableaux Souche, Espece et Genre
         fr1 = open(strain_file)
         os.system('mkdir ' + output_path + 'asko_files')
         fw1 = open(output_path + 'asko_files/' + 'souche.tsv','w')
@@ -203,40 +202,49 @@ def main() :
 
         dico_genre = {'B':'Bifidobacterium','Lb':'Lactobacillus','Lco':'Lactococcus','Leu':'Leuconostoc','Pe':'Pediococus','Pr':'Propionobacterium','St':'Streptococcus'}
 
+        esp_list = []
+        genre_list = []
         for line in fr1 :
-            line = line.split(',')
+            line = line.split('\t') # ATTENTION : est ce que ce sera tout le temps ',' ?
             if line[0] != 'souche' :
                 souche = line[0]
-                statut = line[1][:-1]
-                espece = souche.split("_")[1]
-                genre = souche.split("_")[0]
-                if genre == 'St' :
-                    espece = 'thermophilus'
-                # Distinction des deux espèces 'lactis'
-                if espece == 'lactis' and genre == 'Lco' :
-                    espece = espece + "_lco"
-                elif espece == 'lactis' and genre == 'Leu' :
-                    espece = espece + '_leu'
-                genre = dico_genre[genre]
-
-                fw1.write(souche + '\t' + souche + '\t' + espece + '\t' + statut + '\t' + str(dico_metabo[souche]) + '\n')
-                fw2.write(espece + '\t' + espece + '\t' + genre + '\n')
-                fw3.write(genre + '\t' + genre + '\n')
+                souche = souche.replace('St_','St_thermophilus_')
+                if souche in dico_metabo :
+                    statut = line[1][:-1]
+                    espece = souche.split("_")[1]
+                    genre = souche.split("_")[0]
+                    if genre == 'St' :
+                        espece = 'thermophilus'
+                    # Distinction des deux espèces 'lactis'
+                    if espece == 'lactis' and genre == 'Lco' :
+                        espece = espece + "_lco"
+                    elif espece == 'lactis' and genre == 'Leu' :
+                        espece = espece + '_leu'
+                    genre = dico_genre[genre]
+                    fw1.write(souche + '\t' + souche + '\t' + espece + '\t' + statut + '\t' + str(dico_metabo[souche]) + '\n')
+                    if espece not in esp_list :
+                        fw2.write(espece + '\t' + espece + '\t' + genre + '\n')
+                        esp_list.append(espece)
+                    if genre not in genre_list :
+                        fw3.write(genre + '\t' + genre + '\n')
+                        genre_list.append(genre)
+                
 
         fr1.close()
         fw1.close()
         fw2.close()
         fw3.close()
 
-        # Modification of the result files
-        # Calculation of the percent of the occurrence of metabolic pathway that are 100% or >80% complete
+        # Modification des tableaux de résultats
+        # Calcul des pourcentages d'occurences des voies métabolites complètes à 100% ou à plus de 80 %
         pwy_dict100 = {}
         pwy_dict80 = {}
         list_metabo = []
         for name in metabo_files :
             df = pd.read_csv(output_path + 'result_metabo/' + name ,sep = '\t')
             p,n = df.shape
-            df.insert(0,'ID',['result' + str(i) for i in range(p)])
+            df.rename({'reaction':'associe@Souche'},axis='columns',inplace = True)
+            df.insert(0,'Result_'+name[:-4],['result_' + name[:-4] + str(i) for i in range(p)])
             df.insert(1,'associe@Metabolite',[name[:-4] for i in range(p)])
 
             df.to_csv(output_path + 'asko_files/' + 'result_' + name,sep = '\t', index = False)
@@ -246,7 +254,7 @@ def main() :
             pwy_dict100[name] = 0
             pwy_dict80[name] = 0
             for i in df_percent[1:] :
-                percent = float(i[:-1])
+                percent = float(i)
                 if percent > 80 :
                     pwy_dict80[name] += 1
                     if percent == 100 :
@@ -258,7 +266,6 @@ def main() :
         for name in list_metabo :
             fm.write(name[:-4] + '\t' + name[:-4] + '\t' + str(round(pwy_dict80[name]*100/len(df_percent),2)) + '\t' + str(round(pwy_dict100[name]*100/len(df_percent),2)) + '\n')
         fm.close()
-
 
 if __name__ == "__main__":
     main()
