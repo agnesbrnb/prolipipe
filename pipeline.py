@@ -66,7 +66,7 @@ def main() :
     parser.add_option("--strain",dest="strain", help="Path to the strains file.")
     parser.add_option("--annot",dest="annot",help="Annotation tool. 'prokka' by default, can choose 'eggnog' too.")
     parser.add_option("--egg_path",dest="egg_path",help="Path to the eggnog database, mandatory if you want to use eggnog as the annotation tool.")
-    parser.add_option("-r","--rename",action="store_true",dest="rename", help="Renames of the strains with abreviations.")
+    parser.add_option("-r","--rename",action="store_true",dest="rename", help="Renames all the strains with abreviations.")
     parser.add_option("-a","--asko", action="store_true", dest="asko", help="Launch the creation of the askomics files.")
     parser.add_option("-v","--verbose",action="store_true",dest="verbose", help="Activate verbose.")
     parser.add_option("-k","--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
