@@ -11,21 +11,21 @@ We advise you to create a conda environment with bioperl 5.22 (not above) to be 
 You may have to install python and the followng packages : os, optparse, supervenn, matplotlib.pyplot, pandas, argparse, numpy.
 
 #### Prokka
-You can install prokka many ways, as described in the [prokka github page](https://github.com/tseemann/prokka)
+You can install prokka many ways, as described in the [prokka github page](https://github.com/tseemann/prokka). We used version 1.12.
 
 #### Pathway tools and mpwt
 To install and use pathway tools and mpwt with singularity, you can follow the tutorial of Metage2Metabo [here](https://metage2metabo.readthedocs.io/en/latest/install.html#installation-with-singularity-e-g-on-a-cluster)
+
+#### Eggnog-Mapper
+We used version 2.1.9 of eggnog-mapper and the associate database, version 5.0.2. You can install eggnog-mapper with pip :
+`pip install eggnog-mapper`
 
 
 ## Usage
 
 To begin, you can download genomes using [ncbi genome download](https://github.com/kblin/ncbi-genome-download) or use your own ones.  
 The genomes must be ordonned like the genome folder in toy_example.  
-Then please rename your genomes with the rename.py script and complete the all_taxons.tsv file with the informations of the renamed genomes.
 
-#### rename.py
-
-`rename.py -d [path to the directory of the folders to be renamed]`
 
 #### complete_pipeline.py
 
@@ -45,10 +45,10 @@ options :
 
 	-a		Launch the creation of the askomics files
 	--strain	Path to the strain file (name of strain and status), mandatory with option -a
+	--annot		Annotation tool : 'prokka' or 'eggnog'. (Default is prokka)
+	--egg_path	Path to the eggnop database, mandatory if you choose eggnog as the annotation tool
+	-r		Renames all the strains with abreviations
 	-k		Keep .faa files that can be need to use other annotation software like eggNOG-mapper
 	-v		Activate verbose  
 
 Before launching the pipeline, please make sure you have completed the all_taxons.tsv file with the information of your own genomes and that you have created (at least) one .txt file which contains a list of metacyc reaction corresponding to a pathway, as in the pathway_pyruvate.txt file.
-
-If you don't want to rename your genomes, please make sure there is not any of these symbols in the names : '.', ':', '/' and that the names matches the ones in all_taxons.tsv.
-
