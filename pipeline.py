@@ -130,7 +130,7 @@ def main() :
             gff = output_path + name + '/' + name + '.emapper.genepred.gff'
             annot = output_path + name + '/' + name + '.emapper.annotations'
             out_file = output_path + name + '/' + name + '.gbk'
-            os.system('emapper2gbk genomes -fn ' + genom + ' -fp ' + prot + ' -g ' + gff + ' -a ' + annot + ' -o ' + out_file + ' -gt eggnog -c 5')
+            os.system('emapper2gbk genomes -fn ' + genom + ' -fp ' + prot + ' -g ' + gff + ' -a ' + annot + ' -o ' + out_file + ' -gt eggnog -c 40')
 
     else :
         raise ValueError("The specified annotation tool is not recognized. Please retry with 'eggnog' or 'prokka'. Default is 'prokka'.")
