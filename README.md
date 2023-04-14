@@ -8,7 +8,7 @@ The prolific pipeline is about genome annotation and metabolic pathway reconstru
 
 Because of the amount of calculations, we advise to create a genouest account and install all the requirements on your cluster account.  
 We advise you to create a conda environment with bioperl 5.22 (not above) to be able to use prokka.  
-You may have to install python and the followng packages : optparse, supervenn, matplotlib.pyplot, pandas, numpy.
+You may have to install python and the followng packages : optparse, matplotlib.pyplot, pandas, numpy, csv.
 
 #### Prokka
 You can install prokka many ways, as described in the [prokka github page](https://github.com/tseemann/prokka). We used version 1.12.
