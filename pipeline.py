@@ -11,7 +11,6 @@ from __future__ import print_function
 import os,sys
 import os.path
 from optparse import OptionParser
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import csv
@@ -59,14 +58,14 @@ def main() :
     parser.add_option("-i", "--input", dest="input",help="Path to the folder where the genomes are")
     parser.add_option("-o", "--output", dest="output",help="Path to the folder where you want to put the results in")
     parser.add_option("--tax", dest="all_taxon",help="path of the all_taxon.tsv file")
-    parser.add_option("--padmet_ref", dest="path_to_padmet_ref", help="Path to the padmet_ref need for the module mpwt.")
-    parser.add_option("--ptsc",dest="ptsc", help="Path to scratch folder (genouest cluster).")
+    parser.add_option("--padmet_ref", dest="path_to_padmet_ref", help="Path to the reference database in Padmet format.")
+    parser.add_option("--ptsc",dest="ptsc", help="Path to root folder.")
     parser.add_option("--ptsi",dest="ptsi", help="Name of the singularity image.")
     parser.add_option("--pwy",dest="pwy_fold", help="Path to the folder with the pathways.txt files for all wanted metabolites.")
     parser.add_option("--strain",dest="strain", help="Path to the strains file.")
     parser.add_option("--annot",dest="annot",help="Annotation tool. 'prokka' by default, can choose 'eggnog' too.")
     parser.add_option("--egg_path",dest="egg_path",help="Path to the eggnog database, mandatory if you want to use eggnog as the annotation tool.")
-    parser.add_option("-r","--rename",action="store_true",dest="rename", help="Renames all the strains with abreviations.")
+    parser.add_option("-r","--rename",action="store_true",dest="rename", help="Renames of the strains with abreviations.")
     parser.add_option("-a","--asko", action="store_true", dest="asko", help="Launch the creation of the askomics files.")
     parser.add_option("-v","--verbose",action="store_true",dest="verbose", help="Activate verbose.")
     parser.add_option("-k","--keep_faa", action="store_true", dest="keep_faa", default=False, help="Keep .faa files that can be need to use other annotation software like eggNOG-mapper")
@@ -125,7 +124,14 @@ def main() :
         for name in files :
             os.system('mkdir ' + output_path + 'eggnog/' + name)
             os.system('emapper.py -i ' + path_to_all_data + name + '/' + name +'.fasta -o ' + name + ' --cpu 40 --itype genome --data_dir ' + path_to_egg+ ' --output_dir ' + output_path + 'eggnog' + name + '/ --dbmem --genepred prodigal --override')
-   
+
+            genom = path_to_all_data + name + '/' + name + '.fasta'
+            prot = output_path + name + '/' + name + '.emapper.genepred.fasta'
+            gff = output_path + name + '/' + name + '.emapper.genepred.gff'
+            annot = output_path + name + '/' + name + '.emapper.annotations'
+            out_file = output_path + name + '/' + name + '.gbk'
+            os.system('emapper2gbk genomes -fn ' + genom + ' -fp ' + prot + ' -g ' + gff + ' -a ' + annot + ' -o ' + out_file + ' -gt eggnog -c 5')
+
     else :
         raise ValueError("The specified annotation tool is not recognized. Please retry with 'eggnog' or 'prokka'. Default is 'prokka'.")
 
@@ -140,16 +146,20 @@ def main() :
         for row in lines :
             all_lines.append(row)
         to_write.append(all_lines[0])
+        print(all_lines)
         for name in files :
             for row in all_lines :
-                rowsplit = row.split('\t')
-                new_row = rowsplit[0] + '\t' + rowsplit[1] + '\t' + rowsplit[2] + '\t'
+                print(row)
+                #rowsplit = row.split('\t')
+                new_row = row[:3]
                 if options.rename :
-                    new_row += forbiden(rename(rowsplit[0]))
+                    new_row.append(forbiden(rename(row[0])))
                 else :
-                    new_row += forbiden(rowsplit[0])
+                    new_row.append(forbiden(row[0]))
                 if name in new_row :
                     to_write.append(new_row)
+        print(new_row)
+        print(to_write)
     with open(tax_file,'w') as fo :
         writer = csv.writer(fo,delimiter='\t')
         writer.writerows(to_write)
