@@ -27,16 +27,16 @@ To begin, you can download genomes using [ncbi genome download](https://github.c
 The genomes must be ordonned like the genome folder in toy_example.  
 
 
-#### complete_pipeline.py
+#### pipeline.py
 
-`complete_pipeline.py --argument [argument]`
+`pipeline.py --argument [argument]`
 	
 mandatory arguments :  
 
 	--input		Path to the folder where the genomes are
-	--padmet_ref	Path to the padmet_ref needed for the module mpwt
+	--padmet_ref	Path to the reference database in Padmet format
 	--output	Path to the folder where you want to put the results in
-	--ptsc		Path to the scratch folder (on the cluster)
+	--ptsc		Path to the root folder
 	--ptsi		Name of the singularity image
 	--tax		Path of the all_taxon.tsv file
 	--pwy		Path to the folder with the pathways.txt files for all wanted metabolites
