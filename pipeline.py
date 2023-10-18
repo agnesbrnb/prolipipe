@@ -123,7 +123,7 @@ def main() :
         os.system('mkdir ' + output_path + 'eggnog')
         for name in files :
             os.system('mkdir ' + output_path + 'eggnog/' + name)
-            os.system('emapper.py -i ' + path_to_all_data + name + '/' + name +'.fasta -o ' + name + ' --cpu 40 --itype genome --data_dir ' + path_to_egg+ ' --output_dir ' + output_path + 'eggnog' + name + '/ --dbmem --genepred prodigal --override')
+            os.system('emapper.py -i ' + path_to_all_data + name + '/' + name +'.fasta -o ' + name + ' --cpu 40 --itype genome --data_dir ' + path_to_egg+ ' --output_dir ' + output_path + 'eggnog/' + name + '/ --dbmem --genepred prodigal --override')
 
             genom = path_to_all_data + name + '/' + name + '.fasta'
             prot = output_path + name + '/' + name + '.emapper.genepred.fasta'
