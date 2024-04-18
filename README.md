@@ -1,8 +1,12 @@
-# Prolific
+# Prolipipe
 
 ## Description
 
 The prolific pipeline is about genome annotation and metabolic pathway reconstruction. From .fasta genomes, it enables to find if strains of bacteria are theorically able to produce metabolites.
+
+## License
+
+This project is licensed under the GNU GPL-3.0-or-later, see the [LICENSE](https://github.com/AuReMe/prolipipe/blob/main/LICENSE) file for details.
 
 ## Installation
 
