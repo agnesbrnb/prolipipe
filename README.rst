@@ -1,9 +1,6 @@
-.. image:: https://img.shields.io/pypi/v/aucome.svg
-	:target: https://pypi.python.org/pypi/aucome
 .. image:: https://img.shields.io/github/license/AuReMe/metage2metabo.svg
-	:target: https://github.com/AuReMe/aucome/blob/master/LICENSE
-.. image:: https://img.shields.io/badge/doi-10.1101/gr.277056.122-blueviolet.svg
-	:target: https://doi.org/10.1101/gr.277056.122
+	:target: https://github.com/NoeRobert1/prolipipe-1/blob/main/LICENSE
+
 
 Prolipipe : large-scale assessment of metabolic profiles on bacteria focusing on specific pathways.
 ==========================================
@@ -72,11 +69,11 @@ command:
 pip
 ~~~
 
-If you have installed all the dependencies, you can just install acuome with:
+If you have installed all the dependencies, you can just install prolipipe with:
 
 .. code:: sh
 
-	pip install aucome
+	pip install prolipipe
 
 Usage
 -----
@@ -86,14 +83,4 @@ Usage
     prolipipe.py [-h] -i INPUT -o OUTPUT --tax TAXFILE --padmet_ref PATH_TO_PADMET_REF --ptsc PTSC --ptsi PTSI --pwy PWY_FOLD --strain STRAIN 
 					[--annot ANNOT] [--egg_path EGG_PATH] [--bak_path BAK_PATH] [-c CPUS] [-a] [-k] [-q]
 
-
-
-This command will check if there is no character that will cause trouble. It will also create
-the proteome `FASTA <http://bioinformatics.org/annhyb/examples/seq_fasta.html>`__ file from 
-the `GenBank <https://www.ncbi.nlm.nih.gov/Sitemap/samplerecord.html>`__. Also, this command
-will fill the 'all' row of analysis/group_template.tsv, with all the species from the 
-studied_organisms folder. And for the annotation_based folder, if PGDBs contains folder, it 
-will create the `PADMET <https://padmet.readthedocs.io/en/latest/tutorial.html#padmet-format>`__
-and the `SBML <https://sbml.org/documents/specifications/>`__ corresponding to these draft in 
-PADMETs and SBMLs folders.
 
