@@ -13,7 +13,8 @@ license = {text = "GPL-3.0-or-later"}
 dependencies = ['pandas',
         'glob',
         'shutil',
-        'gzip'
+        'gzip',
+	'subprocess'
 ]
 	     
 
