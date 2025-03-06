@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prolipipe"
+dynamic = ["version"]
+authors = [{name = "prolipipe", email = "gem-aureme@inria.fr"}]
+readme = "README.rst"
+description = "Prolipipe : large-scale assessment of metabolic profiles on bacteria focusing on specific pathways."
+license = {text = "GPL-3.0-or-later"}
+
+dependencies = ['pandas',
+        'glob',
+        'shutil',
+        'gzip'
+]
+	     
+
+[project.scripts]
+prolipipe = "prolipipe.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/AuReMe/prolipipe"
+
+[tool.setuptools]
+packages = ['prolipipe']
+
+[tool.setuptools.dynamic]
+version = { attr = "prolipipe.__version__" }
+dependencies = {file = ["requirements.txt"]}
