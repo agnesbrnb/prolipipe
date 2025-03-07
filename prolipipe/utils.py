@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 import gzip
-import shutil
+from pathlib import Path
 
 
 def forbidden(name) :
@@ -103,12 +103,13 @@ def bigprint(message):
     return
 
 
-def move(source, dest) : 
-    try :
-        shutil.move(source,dest)
+def move(source, dest):
+    try:
+        os.rename(source, dest)  # Déplace ou renomme le fichier/dossier
     except PermissionError:
-        print("Some rights are missing to move {} to {}".format(source,dest))
-
+        print(f"Some rights are missing to move {source} to {dest}")
+    except FileExistsError:
+        print(f"Destination {dest} already exists!")
 
 def mkdir(path) : 
     if not os.path.exists(path):
@@ -120,9 +121,16 @@ def mkdir(path) :
             print(f"An error occurred (mkdir): {e}")
 
 
-def remove(list_path) : 
-    for path in list_path : 
-        if os.path.exists(path):
-            os.remove(path)
-        elif os.path.isdir(path):
-            shutil.rmtree(path)
+def remove(list_path):
+    for path in list_path:
+        p = Path(path)
+        if p.exists():
+            if p.is_file() or p.is_symlink():
+                p.unlink()  ## delete a file or link
+            elif p.is_dir():
+                for sub in p.glob("**/*"):  ## delete recursively
+                    if sub.is_file() or sub.is_symlink():
+                        sub.unlink()
+                    elif sub.is_dir():
+                        os.rmdir(sub)  ## delete empty dir
+                os.rmdir(p)  ## delete main dir 

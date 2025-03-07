@@ -2,7 +2,6 @@
 import pandas as pd
 import glob2 as glob
 import os
-import shutil
 
 import utils
 
@@ -27,9 +26,9 @@ def arrange_renaming(subdir, fasta, taxa_df):
 
     ## rename in genome files 
     new_subdir = subdir.replace(old_name, new_name)
-    shutil.move(subdir, new_subdir)
+    utils.move(subdir, new_subdir)
     new_fasta = fasta.replace(old_name, new_name)
-    shutil.move(fasta, new_fasta)
+    utils.move(fasta, new_fasta)
 
     ## rename in status df
     line= [old_name, "renamed", new_name]

@@ -1,5 +1,5 @@
 pandas
 glob2
-shutil
+pathlib
 gzip
 subprocess
