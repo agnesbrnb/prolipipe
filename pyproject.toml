@@ -11,7 +11,7 @@ description = "Prolipipe : large-scale assessment of metabolic profiles on bacte
 license = {text = "GPL-3.0-or-later"}
 
 dependencies = ['pandas',
-        'glob',
+        'glob2',
         'shutil',
         'gzip',
 	'subprocess'
