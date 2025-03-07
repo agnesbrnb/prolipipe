@@ -1,6 +1,6 @@
 
 import pandas as pd
-import glob
+import glob2 as glob
 import os 
 
 import utils

@@ -13,7 +13,7 @@ Workflow to reconstruct multiple metabolic graphs and assess capacity to synthes
 
 License
 --------
-This workflow is licensed under the GNU GPL-3.0-or-later, see the `LICENSE <https://github.com/AuReMe/aucome/blob/master/LICENSE>`__ file for details.
+This workflow is licensed under the GNU GPL-3.0-or-later, see the `LICENSE <https://github.com/AuReMe/prolipipe/blob/main/LICENSE>`__ file for details.
 
 Installation
 ------------
