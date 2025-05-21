@@ -142,9 +142,3 @@ def build_askomics_files (res_dir, output_dir, strainfile, thresholds = [80, 100
 
     print(f"\nAll AskOmics files are ready.\n")
 
-if __name__ == "__main__" : 
-    res_dir = "/scratch/norobert/prolific_project/toy_example/outputs/metabo_files/"
-    output_dir = "/scratch/norobert/prolific_project/toy_example/outputs/asko_files/"
-    strainfile = "/scratch/norobert/prolific_project/toy_example/inputs/toy_example_strains.tsv"
-    utils.mkdir(output_dir)
-    build_askomics_files (res_dir, output_dir, strainfile)

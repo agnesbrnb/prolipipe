@@ -143,7 +143,7 @@ def check_input(genomes_dir, taxfile, strainfile, status_file):
     if os.path.exists(taxfile):
         expected_taxcols = ["Species", "Taxon_id", "Filename"]
         df_taxa = utils.rename_df(taxfile, expected_taxcols)
-
+        
         ## check if taxfile filled with taxIDs as int
         if (df_taxa["Taxon_id"] % 1  == 0).all() : 
             missing_files = genomes_available - set(df_taxa["Filename"])
@@ -174,9 +174,4 @@ def check_input(genomes_dir, taxfile, strainfile, status_file):
     df_status.to_csv(status_file, sep="\t", index = False )
     return set(df_taxa["Filename"]).union(df_status["Run_filename"])
 
-if __name__ == "__main__" : 
 
-    taxfile = "/scratch/norobert/prolific_project/taxons/taxons_run2_2.tsv"
-    genomes_dir = "/scratch/norobert/strains/genomes_dl_from_NCBI/genomes_cirm-bia/cirm_downloaded"
-    status_file = "bin_prolific/test_status_file.tsv"
-    print(f"{len(check_input(genomes_dir, taxfile, status_file))} available genomes")

@@ -17,7 +17,6 @@ def read_list(file) :
 
 def show_results (df_res) :
 
-    print(df_res)
     ## get reactions never found 
     rxns_not_found = []
     rxns = [rxn for rxn in df_res.columns if "RXN" in rxn]
@@ -68,7 +67,6 @@ def template_df_from_taxfile (taxfile, strainfile, col_filename = "Filename"):
 
     ## check if strainfile and taxfile structures is OK 
     cols_to_check = ["Status", "Strain", col_filename]
-    print(set(cols_to_check) - set(df_strain.columns))
     if len(set(cols_to_check) - set(df_strain.columns)) != 0 :
         print(f"Something wrong with columns names in {strainfile} :\n{list(df_strain.columns)}, {cols_to_check} expected. Terminating.")
         exit(0)
@@ -115,7 +113,6 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col
     df = df.T.reset_index()
     df = df.rename(columns={"index" : col_filename})
     df = df[~df[col_filename].str.contains("_genes_assoc|_formula", na=False)]
-
     for pwy_file in sorted(pwy_files):
         metabo = utils.my_basename(pwy_file)
         print(f"\n{metabo} : ")
@@ -123,10 +120,12 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col
         ## initialize result df, read rxns to process and rxns present at least once
         res_df = template_df.copy() 
        
-        list_rxns = read_list(pwy_file)
-        list_adj_rxns = [e for e in list_rxns] ## copy of list_rxns
+        ## read reactions, remove duplicates while keeping order, and copy it 
+        rxns = read_list(pwy_file)
+        list_rxns = utils.remove_dups_keep_order(rxns)
+        list_adj_rxns = [e for e in list_rxns] 
         
-        ## adding reactions 
+        ## adding reactions columns
         for rxn in list_rxns : 
             if rxn in df.columns : 
                 to_incorporate = df[['Filename',rxn]]
@@ -145,48 +144,6 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col
         res_df.to_csv(filename, sep = "\t", index = False)
         print(f"\t-> saved in {filename}\n")
 
-    print(f"\nIn total, {len(set(rxns_not_found))} reactions never found in genomes : \n{', '.join(rxn for rxn in rxns_not_found)})")
+    print(f"\nIn total, {len(set(rxns_not_found))} reactions never found in genomes : \n{', '.join(rxn for rxn in set(rxns_not_found))})")
 
-    
-def test_df (df_prol, df_new, col_filename="Filename") :
-    """
-    Compare df content between 2 dfs, shows non-matching rows
-    """
-    import numpy as np
-    df_prol = pd.read_csv(df_prol, sep = "\t").sort_values(by="reaction", ascending=True)
-    df_new = pd.read_csv(df_new, sep = "\t").sort_values(by=col_filename, ascending=True)
-    cols = [rxn for rxn in df_prol.columns if "RXN" in rxn] + ["Completion percent", "Adj Compl Pct"]
 
-    for i in range (len(df_prol)) : 
-        for col in cols : 
-            if not np.isclose(df_prol.at[i, col], df_new.at[i, col], atol=1e-8):
-                print(f"\nDefault found in {col}:")
-                # print(f"\t{list(df_prol.columns)}")
-                print(f"\t{list(df_prol.iloc[i])}\n")
-                # print(f"\t{list(df_new.columns)}")
-                print(f"\t{list(df_new.iloc[i])}\n")
-
-if __name__ == "__main__" : 
-    pwy_dir = "/scratch/norobert/prolific_project/pathways/all/"
-    reactions_file = "/scratch/norobert/prolific_project/run2/tsv_files/reactions.tsv"
-    taxfile = "/scratch/norobert/prolific_project/taxons/taxons_run2.tsv"
-    strainfile = "/scratch/norobert/prolific_project/strain_files/strain_run2.tsv"
-    output = "/scratch/norobert/prolific_project/run2/test_results/"
-    
-    ## yeasts
-    pwy_dir = "/scratch/norobert/prolific_project/pathways/all/"
-    reactions_file = "/scratch/norobert/prolific_project/run_yeasts1/tsv_files/reactions.tsv"
-    taxfile = "/scratch/norobert/prolific_project/taxons/taxons_run_yeasts1_restricted.tsv"
-    strainfile = "/scratch/norobert/prolific_project/strain_files/strain_run_yeasts1_restricted.tsv"
-    output = "/scratch/norobert/prolific_project/run_yeasts1/test_results/"
-    os.makedirs(output, exist_ok=True)
-
-    generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output)
-    # complete_res_files(output)
-    ## test function !
-    # for pwy in os.listdir("/scratch/norobert/prolific_project/run2/metabo_files/"):
-    #     pwy = utils.my_basename(pwy)
-    #     print(f"\n\n\n{pwy}")
-    #     df_prol = f"/scratch/norobert/prolific_project/run2/metabo_files/{pwy}.tsv"
-    #     df_new = f"/scratch/norobert/prolific_project/run2/test_results/{pwy}.tsv"
-    #     test_df (df_prol, df_new) 
