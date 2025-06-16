@@ -344,7 +344,7 @@ def main() :
     status_file = os.path.join(output_path, "status_file.tsv")
     genomes_names = check.check_input(input_dir, taxon_file, strain_file, status_file)
     
-    annotation = options.annot.split(",") if options.annot else 'prokka'
+    annotation = options.annot.split(",") if options.annot else 'bakta'
     quick = options.quick
 
     if not quick : 
