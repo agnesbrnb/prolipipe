@@ -21,8 +21,7 @@ Installation
 Dependencies
 ~~~~~~~~~~~~
 
-Prolipipe relies on "MeReco" package 
-------------
+Prolipipe relies on `"MeReco" package <https://github.com/AuReMe/MeReco>`__
 
 These python packages are needed :
 
@@ -33,7 +32,7 @@ These python packages are needed :
 pip
 ~~~
 
-If you have installed all the dependencies, you can just install prolipipe with:
+If you have installed all the dependencies listed here and on MeReco's page, you can just install prolipipe with:
 
 .. code:: sh
 
