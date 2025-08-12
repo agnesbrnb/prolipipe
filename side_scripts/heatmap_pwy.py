@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 import glob 
 
-import prolipipe.src.utils as utils
+from prolipipe.utils import utils
 
 def parser():
     parser = argparse.ArgumentParser(description="Prolipipe heatmaps (and metaheatmap) generation.")
