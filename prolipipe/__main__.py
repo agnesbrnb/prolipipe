@@ -115,40 +115,11 @@ def main() :
     strain_file = options.strain
     taxon_file = options.taxfile
     
-    ## Creating output directory and checking genom
-    utils.mkdir(output_path)
-    status_file = os.path.join(output_path, "status_file.tsv")
-    genomes_names = check.check_input(input_dir, taxon_file, strain_file, status_file)
+    ## Checking genomes
+    check_merged(output_path)
     
-    annotation = options.annot.split(",") if options.annot else 'prokka'
-    quick = options.quick
-
-    if not quick : 
-        
-        ## annotation 
-        for annotool in annotation : 
-            if annotool == 'prokka' :
-                prokka_annotation(input_dir, output_path, genomes_names, options)    
-            elif annotool == 'eggnog' :
-                eggnog_annotation(input_dir, output_path, genomes_names, options)
-            elif annotool == 'bakta' :
-                bakta_annotation(input_dir, output_path, genomes_names, options)
-            else :
-                raise ValueError(f"""
-                                The specified annotation tool is not recognized.
-                                Please retry with 'eggnog', 'bakta' and/or 'prokka'. 
-                                (previous annotations are saved, remove them from arguments)
-                                {parser(True)}
-                                """)
-
-        ## mpwt's metabolic network construction step 
-        create_taxon_file(annotation, genomes_names, options)
-        run_mpwt(output_path, annotation, genomes_names, options)
-        
-        ## file management using padmet 
-        convert2padmet(output_path, annotation, genomes_names, options)
-        merge_padmet(output_path, annotation, genomes_names, options)
-        compare_padmet(output_path, options)
+    ## generate aggregated file reactions.tsv 
+    compare_padmet(output_path, options)
 
     ## exploration of reactions.tsv, output files generation
     output_metabo = os.path.join(output_path, 'metabo_files')
