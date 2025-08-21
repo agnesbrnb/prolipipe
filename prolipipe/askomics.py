@@ -141,4 +141,3 @@ def build_askomics_files (res_dir, output_dir, strainfile, thresholds = [80, 100
     print(f"Saved : {file_genus}") 
 
     print(f"\nAll AskOmics files are ready.\n")
-

@@ -31,6 +31,7 @@ def remove_row_from_df(df, column_name, pattern) :
         Remove rows from a given df having a specific column matching a given string pattern
     """
     index_to_remove = df.index[df[column_name].str.contains(pattern)].tolist()
+    print(index_to_remove)
     df = df.drop(index=(index_to_remove)).reset_index(drop = True)
     return df
 
@@ -47,17 +48,18 @@ def rename_df(path_to_df, expected_cols, no_rxn=False):
             df_to_test (pd.DataFrame) : renamed df
     """
     df_to_test = pd.read_csv(path_to_df, sep = "\t")
+
     ## get columns to compare to expected list
     if no_rxn : 
         to_remove = [col for col in df_to_test.columns if "RXN" in col]
         to_keep = [x for x in df_to_test.columns if x not in to_remove]
     else : 
-        to_keep = list(df_to_test.columns)
+        to_keep = df_to_test.columns
 
     if len(expected_cols) != len(to_keep) :
         print(f"ERROR for {path_to_df} :\nExpected {len(expected_cols)} columns ({expected_cols}), found {len(to_keep)} :\n{df_to_test}")
         exit(0)
-    elif expected_cols != to_keep : 
+    elif any(expected_cols != to_keep): 
         ## find cols to change
         old2new_colnames = {}
         for i in range(len(to_keep)) :
@@ -65,7 +67,7 @@ def rename_df(path_to_df, expected_cols, no_rxn=False):
                 old2new_colnames[to_keep[i]] = expected_cols[i]
         
         ## rename cols and warn the user
-        df_to_test = df_to_test.rename(columns=old2new_colnames)
+        df_to_test.rename(columns=old2new_colnames)
         print(f"Warning for df from {path_to_df} :")
         for old, new in old2new_colnames.items() :
             print(f"\t{old} --> {new}")
@@ -109,7 +111,6 @@ def move(source, dest):
     except FileExistsError:
         print(f"Destination {dest} already exists!")
 
-
 def mkdir(path) : 
     if not os.path.exists(path):
         try :
@@ -133,11 +134,3 @@ def remove(list_path):
                     elif sub.is_dir():
                         os.rmdir(sub)  ## delete empty dir
                 os.rmdir(p)  ## delete main dir 
-
-
-def remove_dups_keep_order(list_input) :
-    list_output = []
-    for element in list_input:
-        if element not in list_output:
-            list_output.append(element) 
-    return list_output
