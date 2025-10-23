@@ -67,11 +67,11 @@ def rename_df(path_to_df, expected_cols, no_rxn=False):
                 old2new_colnames[to_keep[i]] = expected_cols[i]
         
         ## rename cols and warn the user
-        df_to_test.rename(columns=old2new_colnames)
-        print(f"Warning for df from {path_to_df} :")
+        df_to_test = df_to_test.rename(columns=old2new_colnames)
+        print(f"Warning for df from {path_to_df} : the following headers are renamed (if they don't match, don't take the results into account and change headers' order accordingly in the taxon file inputted)")
         for old, new in old2new_colnames.items() :
             print(f"\t{old} --> {new}")
-        
+
     return df_to_test
 
 
@@ -122,6 +122,8 @@ def mkdir(path) :
 
 
 def remove(list_path):
+    if type(list_path) == str :
+        list_path = [list_path]
     for path in list_path:
         p = Path(path)
         if p.exists():
