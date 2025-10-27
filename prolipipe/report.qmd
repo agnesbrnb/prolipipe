@@ -1,6 +1,8 @@
 ---
 title: Prolipipe report
-format: html
+format: 
+    html:
+        page-layout: full
 execute: 
   cache: false
 jupyter: python3
@@ -72,8 +74,6 @@ def get_heatmap_df(df_input, col_completion, ordered_species, col_species = "Spe
 
     if df_filename != "" : 
         df_grouped.to_csv(df_filename, sep = "\t")
-        print(f"saved : {df_filename}")
-
     return df_grouped, total_count
 
 
@@ -105,7 +105,6 @@ def draw_heatmap (df_heatmap, pwy_name, total_count, hm_filename = "") :
 
     if hm_filename != "" :
         fig.write_html(hm_filename, full_html=False, include_plotlyjs='cdn')
-        print(f"saved : {hm_filename}")
 
     return fig
 
@@ -121,7 +120,8 @@ def scatter_with_status(df_res, pwy_name, filename = "", status_colname="Status"
               "Chromosome" : "blueviolet", 
               "Scaffold" : "mediumvioletred", 
               "Contig" : "crimson", 
-              "CIRM" : "green"
+              "CIRM" : "green",
+              "nd" : "grey"
               }
     traces = []
 
@@ -134,8 +134,7 @@ def scatter_with_status(df_res, pwy_name, filename = "", status_colname="Status"
         df_status = df_res[df_res[status_colname] == status]
 
         ## Get headcount per species and completeness percent
-        group_counts = df_status.groupby(["species_count", 'Completion percent']).size().reset_index(name='counts')
-        
+        group_counts = df_status.groupby(["species_count", 'Completion percent']).size().reset_index(name='counts')        
 
         ## Merge counts with the original dataframe
         df_status = pd.merge(df_status, group_counts, on=["species_count", 'Completion percent'], how='left')
@@ -166,7 +165,6 @@ def scatter_with_status(df_res, pwy_name, filename = "", status_colname="Status"
     
     if filename != "" :
         fig.write_html(filename, full_html=False, include_plotlyjs='cdn')
-        print(f"saved : {filename}")
     return fig 
 
 ```
@@ -197,7 +195,6 @@ def bar_presence_reactions(res_df, pwy_name, max_comp="", barplot_presence_path 
 
     if barplot_presence_path != "" :
         fig.write_html(barplot_presence_path, full_html=False, include_plotlyjs='cdn')
-        print(f"saved : {barplot_presence_path}")
 
     return fig
 
@@ -267,8 +264,6 @@ def barplot_best_candidates(df_barplot_bests, all_species, filename = ""):
 
     if filename != "" :
         fig_per_species.write_html(filename, full_html=False, include_plotlyjs='cdn')
-        print(f"saved : {filename}")
-
     return fig_per_species
 
 ```
@@ -313,7 +308,6 @@ def gauges_completeness(sum_df, filename = "", thresh_val = 80):
 
     if filename != "" :
         fig.write_html(filename, full_html=False, include_plotlyjs='cdn')
-        print(f"saved : {filename}")
     return fig 
 ```
 
@@ -339,6 +333,8 @@ for filename in glob.glob(os.path.join(main_dir, input_dir_name, "*.tsv")):
     ## get pathway name
     pwy_name = os.path.splitext(os.path.basename(filename))[0].replace("_all_results", "")
     df = pd.read_csv(filename, sep = "\t")
+
+    print(f"# Pathway: {pwy_name.replace("_", " ")}")
 
     ## HEATMAPS
     heatmaps_dir = os.path.join(res_dir, "heatmaps")
@@ -370,7 +366,6 @@ for filename in glob.glob(os.path.join(main_dir, input_dir_name, "*.tsv")):
     barplot_presence.show()
 
 pwys_data_df = pwys_data_df.sort_values(by="Pathway", ascending=True)
-print(pwys_data_df)
 
 ## show best candidates
 best_candidates_df, species = process_best_global_candidates(pwys_data_df)
