@@ -319,11 +319,16 @@ def gauges_completeness(sum_df, filename = "", thresh_val = 80):
 
 ```{python}
 #| echo: false
-#| warning: false
+#| tags: [parameters]
 
-## pathes to adapt 
 main_dir = "out_mereco"
 input_dir_name = "metabo_files"
+```
+
+```{python}
+#| echo: false
+#| warning: false
+#| output: 'asis'
 
 ## initalize df and build output directory
 pwys_data_df = pd.DataFrame(columns=["Pathway", "Species_candidates", "Best_completion"])
