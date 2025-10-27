@@ -21,13 +21,18 @@ Installation
 Dependencies
 ~~~~~~~~~~~~
 
-Prolipipe relies on `"MeReco" package <https://github.com/AuReMe/MeReco>`__
+Prolipipe relies on outputs from the `"MeReco" package <https://github.com/AuReMe/MeReco>`__
 
 These python packages are needed :
 
-	- `padmet <https://github.com/AuReMe/padmet>`__
+- `pandas <https://pandas.pydata.org/>`__
+- `numpy <https://numpy.org/>`__
+- `plotly <https://plotly.com/>`__
+- glob, glob2
+- pathlib
+- gzip
 
-	- `pandas <https://pandas.pydata.org/>`__
+Prolipipe also needs `Quarto <https://quarto.org/>`__ to generate the interactive report (version > 1.7). 
 
 pip
 ~~~
@@ -36,15 +41,20 @@ If you have installed all the dependencies listed here and on MeReco's page, you
 
 .. code:: sh
 
-	pip install mereco
 	pip install prolipipe
 
 Usage
 -----
+To run Prolipipe and generate an interactive Quarto report:
 
 .. code:: python
 
-    prolipipe.py [-h] -i INPUT -o OUTPUT --tax TAXFILE --padmet_ref PATH_TO_PADMET_REF --ptsc PTSC --ptsi PTSI --pwy PWY_FOLD --strain STRAIN 
-					[--annot ANNOT] [--egg_path EGG_PATH] [--bak_path BAK_PATH] [-c CPUS] [-a] [-k] [-q]
+    prolipipe [-h] -d DIRECTORY --tax TAXFILE --pwy PWY_FOLD
+
+To generate TSV files without the Quarto report:
+
+.. code:: python
+
+    prolipipe [-h] -d DIRECTORY --tax TAXFILE --pwy PWY_FOLD --no-report
 
 
