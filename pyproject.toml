@@ -9,15 +9,24 @@ authors = [{name = "prolipipe", email = "gem-aureme@inria.fr"}]
 readme = "README.rst"
 description = "Prolipipe : large-scale assessment of metabolic profiles on bacteria focusing on specific pathways."
 license = {text = "GPL-3.0-or-later"}
-
+classifiers = [
+        "Programming Language :: Python :: 3 :: Only",
+        "Development Status :: 4 - Beta",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
 dependencies = ['pandas',
         'glob2',
-        'pathlib'
+        'pathlib',
+        'gzip',
+        'numpy',
+        'plotly',
+        'glob'
 ]
 	     
 
 [project.scripts]
 prolipipe = "prolipipe.__main__:main"
+prolipipe-report = "prolipipe.__main__:report"
 
 [project.urls]
 Homepage = "https://github.com/AuReMe/prolipipe"

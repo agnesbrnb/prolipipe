@@ -1,3 +1,7 @@
 pandas
 glob2
 pathlib
+gzip
+numpy
+plotly
+glob
