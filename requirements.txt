@@ -1,7 +1,4 @@
-pandas
-glob2
-pathlib
-gzip
-numpy
-plotly
-glob
+pandas>=2.2.3
+glob2>=0.7
+numpy>=2.2.4
+plotly>=6.3.1
