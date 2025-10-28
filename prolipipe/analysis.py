@@ -3,7 +3,7 @@ import pandas as pd
 import glob2 as glob
 import os 
 
-import utils
+from prolipipe import utils
 
 def read_list(file) :
     """
@@ -16,12 +16,14 @@ def read_list(file) :
     return list
 
 def show_results (df_res) :
-
-    print(df_res)
+    """
+        Extract and return never-found reactions while displaying maximum 
+        completion observed 
+    """
     ## get reactions never found 
     rxns_not_found = []
     rxns = [rxn for rxn in df_res.columns if "RXN" in rxn]
-    for column in rxns :  
+    for column in rxns : 
         if df_res[column].astype(int).sum() == 0  :
             rxns_not_found.append(column)
 
@@ -34,6 +36,13 @@ def show_results (df_res) :
     return rxns_not_found
 
 def add_columns(res_df, list_rxns, list_adj_rxns, col_filename="Filename") :
+    """
+        Add 4 columns from calculation to finish a result file :
+        "Possessed reactions", 
+        "Total number of reactions", 
+        "Completion percent" and
+        "Adj Compl Pct"
+    """
     ## summing presences 
     res_df["Possessed reactions"] = res_df[list_rxns].sum(axis=1).astype(int)
 
@@ -49,48 +58,37 @@ def add_columns(res_df, list_rxns, list_adj_rxns, col_filename="Filename") :
 
     return res_df
 
-
-def template_df_from_taxfile (taxfile, strainfile, col_filename = "Filename"): 
+def template_df_from_taxfile (taxfile, genomes_processed): 
     """ 
         Furnish a template of result dataframe with the species, strain name 
         and file name as columns (data retrieved from strain and taxon files)
         Input : 
             taxfile (str) : path to taxon file 
-            strainfile (str) : path to strain file 
+            genomes_processed (list) : list of processed genomes 
         Output : 
             df (pd.DataFrame) : template df
     """
-    ## get "species" and "Filename" from taxfile
-    expected_taxcols = ["Species", "Taxon_id", "Filename"]
-    df = utils.rename_df(taxfile, expected_taxcols)
-    expected_straincols = ["Strain", "Status", "Filename"]
-    df_strain = utils.rename_df(strainfile, expected_straincols)
+    ## get 5 columns from taxfile
+    expected_cols = ["Species", "Taxon_id", "Filename", "Strain", "Status"]
+    try:
+        df = utils.rename_df(taxfile, expected_cols)
 
-    ## check if strainfile and taxfile structures is OK 
-    cols_to_check = ["Status", "Strain", col_filename]
-    print(set(cols_to_check) - set(df_strain.columns))
-    if len(set(cols_to_check) - set(df_strain.columns)) != 0 :
-        print(f"Something wrong with columns names in {strainfile} :\n{list(df_strain.columns)}, {cols_to_check} expected. Terminating.")
-        exit(0)
-    cols_to_check = ["Species", col_filename]
-    if len(set(cols_to_check) - set(df.columns)) != 0 :
-        print(f"Something wrong with columns names in {taxfile} :\n{list(df.columns)}, {cols_to_check} expected. Terminating.")
-        exit(0)
+        ## limit it to processed genomes
+        df = df[df["Filename"].isin(genomes_processed)]
+
+        ## remove spaces from strain column 
+        df["Strain"].apply(lambda x : x.replace(" ", "_"))
+
+        ## return restricted and renamed df
+        cols = ["Status", "Species", "Strain", "Filename"]
+
+        return df[cols]
     
-    ## add "strain" from strainfile using dics beacause they can be ordered differently
-    filename2strain = df_strain.set_index(col_filename)['Strain'].to_dict()
-    filename2status = df_strain.set_index(col_filename)['Status'].to_dict()
-    df["Strain"] = df[col_filename].map(filename2strain)
-    df["Status"] = df[col_filename].map(filename2status)
-    
-    df["Strain"].apply(lambda x : x.replace(" ", "_"))
+    except:
+        print(f"Expect those columns in taxon_file : {", ".join(expected_cols)}")
+        exit(1)
 
-    ## return restricted and renamed df
-    cols = ["Status", "Species", "Strain", col_filename]
-    return df[cols]
-
-
-def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col_filename = "Filename") :
+def generate_res_files(reactions_file, pwy_dir, taxfile, output, col_filename = "Filename") :
     """
         For each pathway file found in a given directory, build a result 
         file as Prolipipe output
@@ -98,16 +96,13 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col
             reaction_file (str) : path to reaction.tsv
             pwy_dir (str) : path to pathways directory
             taxfile (str) : path to taxon file 
-            strainfile (str) : path to strain file 
             output (str) : path to output were tsv files will be written
+            col_filename(str, optional) : header of the filenames column
         Output : 
             None, but files written  
     """
-    ## get template df with species, strain full name and filename
-    template_df = template_df_from_taxfile(taxfile, strainfile, col_filename)
-
     ## explore pathways and prepare a list of all missing rxns 
-    pwy_files = glob.glob(pwy_dir+"*.txt")
+    pwy_files = glob.glob(os.path.join(pwy_dir, "*.txt"))
     rxns_not_found = []
 
     ## get a transposed, renamed and restricted version of reactions.tsv
@@ -116,22 +111,26 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, strainfile, output, col
     df = df.rename(columns={"index" : col_filename})
     df = df[~df[col_filename].str.contains("_genes_assoc|_formula", na=False)]
 
+    ## get template df with status, species, strain full name and filename 
+    ## adapted to the number of processed genomes
+    genomes_processed = df[col_filename].to_list()
+    template_df = template_df_from_taxfile(taxfile, genomes_processed)
+
     for pwy_file in sorted(pwy_files):
         metabo = utils.my_basename(pwy_file)
         print(f"\n{metabo} : ")
 
         ## initialize result df, read rxns to process and rxns present at least once
         res_df = template_df.copy() 
-       
         list_rxns = read_list(pwy_file)
-        list_adj_rxns = [e for e in list_rxns] ## copy of list_rxns
+        list_adj_rxns = [r for r in list_rxns]  ## not to change ; copy of list_rxns that may decrement
         
         ## adding reactions 
         for rxn in list_rxns : 
-            if rxn in df.columns : 
-                to_incorporate = df[['Filename',rxn]]
-                res_df = pd.merge(res_df, to_incorporate, on=col_filename, how="left")   
-            else :
+            if rxn in df.columns :  ## merging for reactions found
+                to_incorporate = df[[col_filename,rxn]]
+                res_df = pd.merge(res_df, to_incorporate, on=col_filename, how="left")  
+            else :                  ## filling with 0 for all filenames if not in reactions.tsv
                 list_adj_rxns.remove(rxn)
                 res_df[rxn] = [0 for file in df[col_filename]]
 

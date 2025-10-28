@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,23 +8,34 @@ dynamic = ["version"]
 authors = [{name = "prolipipe", email = "gem-aureme@inria.fr"}]
 readme = "README.rst"
 description = "Prolipipe : large-scale assessment of metabolic profiles on bacteria focusing on specific pathways."
-license = {text = "GPL-3.0-or-later"}
-
-dependencies = ['pandas',
-        'glob2',
-        'pathlib'
+license = "GPL-3.0-or-later"
+classifiers = [
+        "Programming Language :: Python :: 3 :: Only",
+        "Development Status :: 4 - Beta",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = ['pandas>=2.2.3',
+        'glob2>=0.7',
+        'numpy>=2.2.4',
+        'plotly>=6.3.1',
+        'jupyter',
+        'papermill'
 ]
 	     
-
 [project.scripts]
 prolipipe = "prolipipe.__main__:main"
+prolipipe-report = "prolipipe.__main__:report"
 
 [project.urls]
 Homepage = "https://github.com/AuReMe/prolipipe"
 
 [tool.setuptools]
 packages = ['prolipipe']
+package-dir = {"prolipipe"="prolipipe"}
 
 [tool.setuptools.dynamic]
 version = { attr = "prolipipe.__version__" }
 dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.package-data]
+prolipipe = ['report.qmd']

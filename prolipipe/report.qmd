@@ -1,0 +1,381 @@
+---
+title: Prolipipe report
+format: 
+    html:
+        page-layout: full
+execute: 
+  cache: false
+jupyter: python3
+---
+
+```{python}
+#| include: false
+
+## imports : Heatmaps (species over 10%-completion score brackets, headcounts in shade of color)
+import plotly.graph_objects as go
+import plotly.express as px
+import numpy as np
+import os 
+import glob
+import pandas as pd
+
+def get_heatmap_df(df_input, col_completion, ordered_species, col_species = "Species", filename = ""):
+    """
+        from the df of a Prolipipe result file, prepare numeric values for a visualization of completion percentage accross species on a heatmap
+        Input : 
+            df (pd.DataFrame) : df of a Prolipipe result file
+            col_completion (str) : name of the column to focus on 
+            ordered_species (list) : ordered list of species name to sort them
+            col_species (str) : name of the species column 
+        Output : 
+            df_grouped (pd.DataFrame) : heatmap df
+    """
+    ## Prepare df
+    ### first 9 columns
+    brackets_columns = []
+    bins = [(i, i+10) for i in range(0, 90, 10)]
+    for start, end in bins:
+        column_name = f"{start}-{end}%"
+        brackets_columns.append(column_name)
+        df_input[column_name] = df_input[col_completion].apply(lambda x: 1 if start <= x < end else 0)
+    ### last column
+    df_input['90-100%'] = df_input[col_completion].apply(lambda x: int(1) if 90 <= x <= 100 else int(0))
+    df_input['90-100%'] = df_input['90-100%'].astype(int)
+    brackets_columns.append('90-100%')
+    df_grouped = df_input.groupby(col_species).sum(numeric_only=True).reset_index()
+    df_grouped = df_grouped.drop(columns=[col_completion])
+
+    ## get total number of strains and prepare ratio : get headcounts in species
+    total_count = len(df_input)
+    species_counts = df_input[col_species].value_counts().reset_index()
+    species_counts.columns = [col_species, 'count']
+
+    # Join both dfs on col_species
+    df_grouped = df_grouped.merge(species_counts, on=col_species)
+
+    ## Calculate species ratio
+    for column in brackets_columns:
+        df_grouped[column] = df_grouped.apply(lambda row: round(row[column] / row['count'] * 100, 1) if row['count'] != row[column] else 100, axis=1)
+
+    ## Delete unwanted columns
+    df_grouped = df_grouped[[col_species, 'count'] + brackets_columns]
+
+    ## order df 
+    if ordered_species != [] :
+        df_grouped[col_species] = pd.Categorical(df_grouped[col_species], categories=ordered_species, ordered=True)
+    df_grouped = df_grouped.sort_values(col_species)
+
+    ## For the legend, adding number of strains per species 
+    df_grouped[col_species] = df_grouped.apply(lambda row: (f"{row[col_species]} ({row['count']} ind)"), axis=1)
+    df_grouped = df_grouped.drop(columns=['count'])
+
+    ## Set col_species as index for the heatmap
+    df_grouped.set_index(col_species, inplace=True)
+
+    if df_filename != "" : 
+        df_grouped.to_csv(df_filename, sep = "\t")
+    return df_grouped, total_count
+
+
+def draw_heatmap (df_heatmap, pwy_name, total_count, hm_filename = "") :
+    """
+        Draw interactive heatmap from prepared df 
+    """
+    colors = color_shading = [[0, 'rgb(255, 255, 255)'], [1, 'rgb(127, 0, 127)']]      # purple
+
+    fig = go.Figure(data=go.Heatmap(
+                    z=df_heatmap.values,
+                    x=df_heatmap.columns,
+                    y=df_heatmap.index.to_list(),
+                    colorscale=colors,
+                    hovertemplate=(
+                        "<b>%{y}</b><br>" +  
+                        "Species % on %{x}-bracket :<br>" +            
+                        "%{z}<extra></extra>"  
+                    )
+                    ))
+
+    fig.update_layout(
+    xaxis_title="Completeness bracket",  
+    yaxis_title="Species",               
+    title = f"Species headcounts dealt on {pwy_name}'s completeness ({total_count} strains)",
+    width=900, 
+    height=1200,
+    )
+
+    if hm_filename != "" :
+        fig.write_html(hm_filename, full_html=False, include_plotlyjs='cdn')
+
+    return fig
+
+```
+
+```{python}
+#| include: false
+
+## imports : Scatterplots based on assembly quality
+def scatter_with_status(df_res, pwy_name, filename = "", status_colname="Status", species_colname="Species", ):
+    all_status = list(set(df_res[status_colname]))
+    status2colors = {"Complete" : "blue", 
+              "Chromosome" : "blueviolet", 
+              "Scaffold" : "mediumvioletred", 
+              "Contig" : "crimson", 
+              "CIRM" : "green",
+              "nd" : "grey"
+              }
+    traces = []
+
+    ## add species headcounts 
+    species2counts = df_res[species_colname].value_counts().to_dict()
+    df_res["species_count"] = df_res.apply(lambda row: (f"{row[species_colname]} ({species2counts[row[species_colname]]} ind)"), axis=1)
+    df_res["ind_per_species"] = df_res[species_colname].map(species2counts)
+
+    for i, status in enumerate(status2colors.keys()):
+        df_status = df_res[df_res[status_colname] == status]
+
+        ## Get headcount per species and completeness percent
+        group_counts = df_status.groupby(["species_count", 'Completion percent']).size().reset_index(name='counts')        
+
+        ## Merge counts with the original dataframe
+        df_status = pd.merge(df_status, group_counts, on=["species_count", 'Completion percent'], how='left')
+
+        ## Normalize dot size depending on headcounts, from 5 to 25
+        df_status["marker_size"] = 5 + 20 * (df_status["counts"] / df_status["ind_per_species"])
+
+        traces.append({
+            'x': df_status["species_count"],
+            'y': df_status["Completion percent"],
+            'name': status,
+            'marker': {'color': status2colors[status], 'size': df_status["marker_size"]},
+            'type': 'scatter',
+            'mode': 'markers',
+            'customdata': df_status["counts"],
+            'hovertemplate': 'Species = %{x}<br>Completeness % = %{y}<br>Count = %{customdata}<extra></extra>',
+            'showlegend': True
+        })
+
+    ## Prepare layout
+    layout = {
+        'title': f"{pwy_name}'s completeness depending on assembly quality",
+        'xaxis': {'tickangle': 45, 'automargin': True, 'tickfont': {'size' : 8}},
+        'yaxis': {'range': [-5, 105]},
+    }
+
+    fig = go.Figure(data=traces, layout=layout)
+    
+    if filename != "" :
+        fig.write_html(filename, full_html=False, include_plotlyjs='cdn')
+    return fig 
+
+```
+
+```{python}
+#| include: false
+
+## imports : Barplots on reactions' presence (detect missing reactions)
+def bar_presence_reactions(res_df, pwy_name, max_comp="", barplot_presence_path = ""): 
+    """
+        Display a colored barplot of each reaction's presence from a result df
+    """
+    rxns = [col for col in res_df.columns if "RXN" in col]
+    rxn2ratio = {}
+
+    ## get presence ratio for each reaction
+    for rxn in rxns : 
+        count_rxn = res_df[rxn].sum()
+        rxn_ratio = round(count_rxn / len(res_df) * 100, 1)
+        rxn2ratio[rxn] = rxn_ratio
+
+    to_add = f"(best completion score : {max_comp}%)" if max_comp != "" else ""
+
+    fig = px.bar(dict(Reactions=rxn2ratio.keys(), Presence=rxn2ratio.values()), x="Reactions", y="Presence", 
+    color="Presence", color_continuous_scale=px.colors.sequential.Greens, range_color=(0,100),
+    title=f"{pwy_name}'s reactions presence percentage accross strains {to_add}")
+    fig.update_yaxes(range=[0, 100])
+
+    if barplot_presence_path != "" :
+        fig.write_html(barplot_presence_path, full_html=False, include_plotlyjs='cdn')
+
+    return fig
+
+```
+
+```{python}
+#| include: false
+
+## imports : Get best candidates 
+def get_best_candidates(df_res) :
+    """
+        Extract best candidates from a Prolipipe result df based on completion score. 
+    """
+    max_comp = df_res["Completion percent"].max() ## adjusted or not, doesn't matter
+    df_bests = df[df["Completion percent"] == max_comp]
+
+    if max_comp != 0 :
+        best_species2count = df_bests.value_counts("Species").to_dict()
+    else :
+        best_species2count = {}
+
+    return best_species2count, max_comp
+
+def process_best_global_candidates(pwys_data_df) :
+    """
+        Extract species performing best at least once, the pathways and completion associated
+    """
+    ## get individual species performing best 
+    all_species = set(pwys_data_df["Species_candidates"].sum())
+
+    ## prepare barplot df by summarizing data based on species
+    df_barplot_bests = pd.DataFrame(columns=["Species", "Pathway", "Count", "Best_score"])
+    for i, row in pwys_data_df.iterrows(): 
+        pwy = row["Pathway"]
+        best_comp = row["Best_completion"]
+        for species in row["Species_candidates"] :
+            df_barplot_bests.loc[len(df_barplot_bests)] = [species, pwy, 1, best_comp]
+
+    return df_barplot_bests, all_species
+```
+
+```{python}
+#| include: false
+
+## imports : Barplots of best candidates (pathways best completed on species)
+
+def barplot_best_candidates(df_barplot_bests, all_species, filename = ""):
+    """
+        Visualization (and save) of df_barplot_bests : barplot species candidates with their
+        number of pathways best completed (colored on completion)
+    """
+    ## adapt y scale to int values by assessing max number of best completions among a signle species
+    df_barplot_bests["Count"] = df_barplot_bests["Count"].astype(int)
+    species2count = df_barplot_bests.groupby("Species")["Count"].sum().to_dict()
+    max_yval = max(list(species2count.values()))
+    yscale = list(range(0, max_yval + 1))
+
+    ## prepare interactive barplot expressing "Count" on "Species" 
+    fig_per_species = px.bar(df_barplot_bests, x="Species", y="Count", color="Best_score", color_continuous_scale=px.colors.sequential.Blues, range_color=(0,100),
+    title=f"Specie's best pathways completion scores ({len(all_species)} performed best at least once)", width=1200, height=600)
+    fig_per_species.update_traces(
+        customdata = np.stack((df_barplot_bests["Pathway"], df_barplot_bests["Best_score"]), axis=-1),
+        hovertemplate = 'Species = %{x}<br>Pathway = %{customdata[0]}<br>Best score = %{customdata[1]}%<extra></extra>'
+    )
+    fig_per_species.update_layout(xaxis= {'tickangle': 45, 'automargin': True, 'tickfont': {'size' : 8}}, 
+    yaxis={'tickmode':'array', 'tickvals':yscale}) 
+
+    if filename != "" :
+        fig_per_species.write_html(filename, full_html=False, include_plotlyjs='cdn')
+    return fig_per_species
+
+```
+
+```{python}
+#| include: false
+
+## imports : Overall completion visualization with gauges 
+def gauges_completeness(sum_df, filename = "", thresh_val = 80):
+    """
+        display a completeness gauge with a threshold for each pathway read in a summary df
+    """
+    fig = go.Figure()
+    nb_cols = 4
+
+    for i, row in sum_df.iterrows() : 
+        ## prepare legend data and position in figure
+        pwy = row["Pathway"]
+        completeness = row["Best_completion"]
+        row_index, col_index = i//nb_cols, i%nb_cols
+
+        ## draw gauges on completion, with a threshold        
+        fig.add_trace(go.Indicator(
+            value = completeness,
+            mode = "gauge+number",
+            title = {'text': f"{pwy}"},
+            gauge = {'axis': {'range': [None, 100]},
+                     'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': thresh_val}},
+            domain = {'row': row_index, 'column': col_index}
+            ))
+    
+    ## adjust nb of rows -and height- depending on the nb of pathways
+    nb_rows = len(sum_df) // nb_cols + 1 if len(sum_df)%nb_cols != 0 else len(sum_df) // nb_cols
+    fig.update_layout(
+    grid = {'rows': nb_rows, 'columns': nb_cols, 'pattern': "independent"},
+    template = {'data' : {'indicator': [{
+        'title': {'text': "Completeness"},
+        'mode' : "number+gauge",
+        'delta' : {'reference': 90}}]
+                         }}, 
+    height=300*nb_rows)
+
+    if filename != "" :
+        fig.write_html(filename, full_html=False, include_plotlyjs='cdn')
+    return fig 
+```
+
+```{python}
+#| echo: false
+#| tags: [parameters]
+
+input_dir_name = "metabo_files"
+```
+
+```{python}
+#| echo: false
+#| warning: false
+#| output: 'asis'
+
+## initalize df and build output directory
+pwys_data_df = pd.DataFrame(columns=["Pathway", "Species_candidates", "Best_completion"])
+res_dir = "results"
+os.makedirs(res_dir, exist_ok=True)
+
+for filename in glob.glob(os.path.join(input_dir_name, "*.tsv")):
+    ## get pathway name
+    pwy_name = os.path.splitext(os.path.basename(filename))[0].replace("_all_results", "")
+    df = pd.read_csv(filename, sep = "\t")
+
+    print(f"# Pathway: {pwy_name.replace("_", " ")}")
+
+    ## HEATMAPS
+    heatmaps_dir = os.path.join(res_dir, "heatmaps")
+    os.makedirs(heatmaps_dir, exist_ok=True)
+    ### prepare and save heatmap df
+    df_filename = os.path.join(heatmaps_dir, f"{pwy_name}_heatmap_df.tsv")
+    df_heatmap, total_count = get_heatmap_df(df, "Completion percent", [], "Species", filename = df_filename)
+    ### draw and save heatmap
+    heatmap_path = os.path.join(heatmaps_dir, f"{pwy_name}_heatmap.html")
+    heatmap = draw_heatmap(df_heatmap, pwy_name, total_count, hm_filename= heatmap_path)
+    heatmap.show()
+
+    ## draw and save scatterplot based on status (assembly quality)
+    scatters_dir = os.path.join(res_dir, "scatters")
+    os.makedirs(scatters_dir, exist_ok=True)
+    scatter_path = os.path.join(scatters_dir, f"{pwy_name}_scatter.html")    
+    scatter = scatter_with_status(df, pwy_name, scatter_path)
+    scatter.show()
+    
+    ## get best candidates and completion on each pathway
+    best_species2count, max_comp = get_best_candidates(df)
+    pwys_data_df.loc[len(pwys_data_df)] = [pwy_name, list(best_species2count.keys()), max_comp]
+
+    ## draw barplot on reactions' presence 
+    barplots_dir = os.path.join(res_dir, "barplots")
+    os.makedirs(barplots_dir, exist_ok=True)
+    barplot_path = os.path.join(barplots_dir, f"{pwy_name}_barplot.html")
+    barplot_presence = bar_presence_reactions(df, pwy_name, max_comp, barplot_path)
+    barplot_presence.show()
+
+pwys_data_df = pwys_data_df.sort_values(by="Pathway", ascending=True)
+
+## show best candidates
+best_candidates_df, species = process_best_global_candidates(pwys_data_df)
+barplot_filename = os.path.join(res_dir, f"best_candidates.html")
+best_cand_barplot = barplot_best_candidates(best_candidates_df, species, barplot_filename)
+best_cand_barplot.show() 
+
+## show best completion score
+gauges_filename = os.path.join(res_dir, f"gauges_completion.html")
+gauges = gauges_completeness(pwys_data_df, gauges_filename)
+gauges.show()
+
+```
+

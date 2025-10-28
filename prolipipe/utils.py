@@ -1,7 +1,6 @@
 
 import pandas as pd
 import os
-import gzip
 from pathlib import Path
 
 
@@ -67,35 +66,12 @@ def rename_df(path_to_df, expected_cols, no_rxn=False):
                 old2new_colnames[to_keep[i]] = expected_cols[i]
         
         ## rename cols and warn the user
-        df_to_test.rename(columns=old2new_colnames)
-        print(f"Warning for df from {path_to_df} :")
+        df_to_test = df_to_test.rename(columns=old2new_colnames)
+        print(f"Warning for df from {path_to_df} : the following headers are renamed (if they don't match, don't take the results into account and change headers' order accordingly in the taxon file inputted)")
         for old, new in old2new_colnames.items() :
             print(f"\t{old} --> {new}")
-        
+
     return df_to_test
-
-
-def decompress_gzip_file(file_path, extension, suppr_zip):
-    """
-        Uncompress a gzipped file 
-        Input : 
-            file_path (str) : path to the file 
-            extension (str) : expected extension on final file (starting with ".")
-            suppr_zip (bool) : whether to delete zipped archive or not
-        Output : 
-            the unzipped file 
-    """
-
-    ## get directory path, file basename and uncompressed file name
-    dir_path = os.path.dirname(file_path)
-    name = my_basename(file_path)
-    file_out = os.path.join(dir_path, name + extension)
-
-    with gzip.open(file_path, 'rb') as f_in, open(file_out, 'wb') as f_out:
-        f_out.write(f_in.read())
-    if suppr_zip == True : 
-        os.remove(file_path)  
-
 
 def bigprint(message): 
     delimitation = "-------------------------------------------"
@@ -122,6 +98,8 @@ def mkdir(path) :
 
 
 def remove(list_path):
+    if type(list_path) == str :
+        list_path = [list_path]
     for path in list_path:
         p = Path(path)
         if p.exists():
