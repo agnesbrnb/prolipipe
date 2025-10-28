@@ -1,7 +1,6 @@
 
 import pandas as pd
 import os
-import gzip
 from pathlib import Path
 
 
@@ -73,29 +72,6 @@ def rename_df(path_to_df, expected_cols, no_rxn=False):
             print(f"\t{old} --> {new}")
 
     return df_to_test
-
-
-def decompress_gzip_file(file_path, extension, suppr_zip):
-    """
-        Uncompress a gzipped file 
-        Input : 
-            file_path (str) : path to the file 
-            extension (str) : expected extension on final file (starting with ".")
-            suppr_zip (bool) : whether to delete zipped archive or not
-        Output : 
-            the unzipped file 
-    """
-
-    ## get directory path, file basename and uncompressed file name
-    dir_path = os.path.dirname(file_path)
-    name = my_basename(file_path)
-    file_out = os.path.join(dir_path, name + extension)
-
-    with gzip.open(file_path, 'rb') as f_in, open(file_out, 'wb') as f_out:
-        f_out.write(f_in.read())
-    if suppr_zip == True : 
-        os.remove(file_path)  
-
 
 def bigprint(message): 
     delimitation = "-------------------------------------------"

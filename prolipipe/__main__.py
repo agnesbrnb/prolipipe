@@ -23,15 +23,18 @@ options:
 """
 
 from __future__ import print_function
+from importlib import resources
 import os
 import argparse
 
-import utils
-import analysis
+from prolipipe import utils, analysis
 
 # FUNCTIONS ---------------------------------------------------------------------------------
 
-
+def get_report_path():
+    with resources.path("prolipipe", "report.qmd") as p:
+        return str(p)
+    
 def parser() : 
     parser = argparse.ArgumentParser(description="Prolipipe pipeline for large-scale assessment of metabolic profiles on bacteria focusing on specific pathways.")
     
@@ -69,11 +72,11 @@ def render_quarto_report(directory, input_files):
     """
     Render quarto report in the output directory provided to visualise Prolipipe results.
     """
+    report_path = get_report_path()
 
+    os.chdir(directory)
     quarto_command = f"""
-    quarto render report.qmd --output-dir quarto_report -P main_dir:{directory} -P input_dir_name:{input_files} &&
-    rm -rf {directory}/quarto_report
-    mv quarto_report {directory}
+    quarto render {report_path} --output-dir quarto_report -P input_dir_name:{input_files}
     """
     os.system(quarto_command)
 

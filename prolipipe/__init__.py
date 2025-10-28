@@ -1,3 +1,3 @@
-from prolipipe import analysis, askomics, check, utils
+from prolipipe import analysis, utils
 
 __version__='0.1.0'

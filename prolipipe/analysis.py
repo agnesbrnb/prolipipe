@@ -3,7 +3,7 @@ import pandas as pd
 import glob2 as glob
 import os 
 
-import utils
+from prolipipe import utils
 
 def read_list(file) :
     """
