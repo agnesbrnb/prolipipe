@@ -3,7 +3,7 @@
 
 
 Prolipipe : large-scale assessment of metabolic profiles on bacteria focusing on specific pathways.
-==========================================
+===================================================================================================
 
 Workflow to reconstruct multiple metabolic graphs and assess capacity to synthesize specific compounds.
 
@@ -25,12 +25,12 @@ Prolipipe relies on outputs from the `"MeReco" package <https://github.com/AuReM
 
 These python packages are needed :
 
-- `pandas <https://pandas.pydata.org/>`__
-- `numpy <https://numpy.org/>`__
-- `plotly <https://plotly.com/>`__
-- glob, glob2
-- pathlib
-- gzip
+    - `pandas <https://pandas.pydata.org/>`__
+    - `numpy <https://numpy.org/>`__
+    - `plotly <https://plotly.com/>`__
+    - glob, glob2
+    - pathlib
+    - gzip
 
 Prolipipe also needs `Quarto <https://quarto.org/>`__ to generate the interactive report (version > 1.7). 
 
