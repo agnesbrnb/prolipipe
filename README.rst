@@ -22,15 +22,16 @@ Dependencies
 ~~~~~~~~~~~~
 
 Prolipipe relies on outputs from the `"MeReco" package <https://github.com/AuReMe/MeReco>`__
+It runs with python >= 3.8.
 
 These python packages are needed :
 
     - `pandas <https://pandas.pydata.org/>`__
     - `numpy <https://numpy.org/>`__
     - `plotly <https://plotly.com/>`__
-    - glob, glob2
-    - pathlib
-    - gzip
+    - glob2
+    - jupyter
+    - papermill
 
 Prolipipe also needs `Quarto <https://quarto.org/>`__ to generate the interactive report (version > 1.7). 
 
