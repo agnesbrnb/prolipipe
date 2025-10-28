@@ -315,7 +315,6 @@ def gauges_completeness(sum_df, filename = "", thresh_val = 80):
 #| echo: false
 #| tags: [parameters]
 
-main_dir = "out_mereco"
 input_dir_name = "metabo_files"
 ```
 
@@ -326,10 +325,10 @@ input_dir_name = "metabo_files"
 
 ## initalize df and build output directory
 pwys_data_df = pd.DataFrame(columns=["Pathway", "Species_candidates", "Best_completion"])
-res_dir = os.path.join(main_dir, "results")
+res_dir = "results"
 os.makedirs(res_dir, exist_ok=True)
 
-for filename in glob.glob(os.path.join(main_dir, input_dir_name, "*.tsv")):
+for filename in glob.glob(os.path.join(input_dir_name, "*.tsv")):
     ## get pathway name
     pwy_name = os.path.splitext(os.path.basename(filename))[0].replace("_all_results", "")
     df = pd.read_csv(filename, sep = "\t")

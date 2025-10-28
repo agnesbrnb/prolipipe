@@ -24,7 +24,7 @@ options:
 
 from __future__ import print_function
 from importlib import resources
-import os
+import os, shutil
 import argparse
 
 from prolipipe import utils, analysis
@@ -74,11 +74,13 @@ def render_quarto_report(directory, input_files):
     """
     report_path = get_report_path()
 
+    shutil.copy(report_path, directory)
     os.chdir(directory)
     quarto_command = f"""
-    quarto render {report_path} --output-dir quarto_report -P input_dir_name:{input_files}
+    quarto render report.qmd --output-dir quarto_report -P input_dir_name:{input_files}
     """
     os.system(quarto_command)
+    os.remove("report.qmd")
 
 # ---------------------------------------------------------------------------------------------
 
