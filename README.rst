@@ -36,7 +36,7 @@ These python packages are needed :
 
 Prolipipe also needs `Quarto <https://quarto.org/>`__ to generate the interactive report (version > 1.7). 
 
-conda
+Conda
 ~~~~
 
 Prolipipe is available on the conda channel "fermentsdufutur" and can be installed with:
@@ -46,6 +46,18 @@ Prolipipe is available on the conda channel "fermentsdufutur" and can be install
 	conda create -n prolipipe
 	conda activate prolipipe
 	conda install -c fermentsdufutur prolipipe 
+
+Preparation of taxfile
+-----
+
+Prolipipe and AuFAMe rely on data about genomes, either a taxonomic ID for building accurate GSMs in the case of AuFAMe or species name and assembly level categories for clustering during Prolipipe's analyses.
+A compatible structure for both is the following columns in a tsv file :
+
+    - "Species" : space-separated species name (used to categorize genomes in reports and heatmaps)
+    - "Taxon_id" : strict taxID of the species ; can be "2" (Bacteria) if ignored
+    - "Filename" : strict name of the genome file, without file extension
+    - "Strain" : space-separated strain name
+    - "Status" : another metric to categorize genomes based on assembly quality ; that way, can be either "Complete", "Chromosome", "Scaffold" and "Contig"
 
 Usage
 -----

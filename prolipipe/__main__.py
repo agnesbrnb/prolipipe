@@ -141,7 +141,7 @@ def report():
     parser.add_argument("-d", "--dir", required=True, dest="directory", help="Output path for Quarto report. It needs to contain a directory with tsv files from Prolipipe.")
     parser.add_argument("-i", "--input", required=True, dest="input", help="Name of the directory containing tsv files from Prolipipe.")
     
-    options = parser.parse_args()
+    options = parser()
 
     render_quarto_report(options.directory, options.input)
 
