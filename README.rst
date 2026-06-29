@@ -59,6 +59,11 @@ A compatible structure for both is the following columns in a tsv file :
     - "Strain" : space-separated strain name
     - "Status" : another metric to categorize genomes based on assembly quality ; that way, can be either "Complete", "Chromosome", "Scaffold" and "Contig"
 
+Preparation of pathways 
+-----
+You need to prepare a "pathways" directory before running Prolipipe. To do so, gather pathways of interest for your study from `MetaCyc <https://metacyc.org/>`__ and build txt files (we advise naming them with the name of the pathway) made of the reactions identifiers composing it, one per line. 
+An exemple of pathways directory is given in "toy_example/pathways". 
+
 Usage
 -----
 To run Prolipipe with padmet files from AuFAMe as input, generate TSV files and an interactive Quarto report:
