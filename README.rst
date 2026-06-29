@@ -61,7 +61,7 @@ A compatible structure for both is the following columns in a tsv file :
 
 Preparation of pathways 
 -----
-You need to prepare a "pathways" directory before running Prolipipe. To do so, gather pathways of interest for your study from `MetaCyc <https://metacyc.org/>`__ and build txt files (we advise naming them with the name of the pathway) made of the reactions identifiers composing it, one per line. 
+You need to prepare a "pathways" directory before running Prolipipe. To do so, gather pathways of interest for your study from `MetaCyc <https://metacyc.org/>`__ and build txt files made of the reactions identifiers composing it, one per line. 
 An exemple of pathways directory is given in "toy_example/pathways". 
 
 Usage
