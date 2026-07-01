@@ -103,6 +103,8 @@ def generate_res_files(reactions_file, pwy_dir, taxfile, output, col_filename = 
     """
     ## explore pathways and prepare a list of all missing rxns 
     pwy_files = glob.glob(os.path.join(pwy_dir, "*.txt"))
+    if len(pwy_files) == 0 :
+        print(f"ERROR : no pathway file detected in {pwy_dir}. Please fill it up with txt files containing each pathway's reaction ID (see documentation on the Git for an example).")
     rxns_not_found = []
 
     ## get a transposed, renamed and restricted version of reactions.tsv
